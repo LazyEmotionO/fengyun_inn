@@ -1,0 +1,45 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ story.title }} | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-6 fw-bold">{{ story.title }}</h1>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'story' %}" class="text-white">水井故事</a></li>
+                <li class="breadcrumb-item active text-white-50">{{ story.title|truncatechars:30 }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                {% if story.image %}
+                <img src="{{ story.image.url }}" class="img-fluid rounded shadow mb-4 w-100" alt="{{ story.title }}" style="max-height:400px;object-fit:cover;">
+                {% endif %}
+                <div class="d-flex align-items-center mb-4 text-muted">
+                    <i class="bi bi-person-circle me-2 fs-5"></i>
+                    <span>{{ story.author }}</span>
+                    <span class="mx-3">|</span>
+                    <i class="bi bi-calendar me-2"></i>
+                    <span>{{ story.published_date }}</span>
+                </div>
+                <div class="story-content fs-5 lh-lg">
+                    {{ story.content|linebreaks }}
+                </div>
+                <hr class="my-5">
+                <a href="{% url 'story' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>返回故事列表
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

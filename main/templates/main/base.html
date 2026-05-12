@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}風雲客棧 | 水井村數位入口平台{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'main/images/favicon.ico' %}" onerror="this.remove()">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <span class="brand-icon me-2">&#9960;</span>
+                <div>
+                    <div class="brand-title">風雲客棧</div>
+                    <div class="brand-subtitle">水井村數位入口平台</div>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-house-door me-1"></i>首頁
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">
+                            <i class="bi bi-info-circle me-1"></i>關於風雲客棧
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-calendar-event me-1"></i>活動資訊
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{% url 'event_list' %}">所有活動</a></li>
+                            <li><a class="dropdown-item" href="{% url 'activities' %}">體驗課程</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-book me-1"></i>水井故事
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{% url 'story' %}">在地故事</a></li>
+                            <li><a class="dropdown-item" href="{% url 'usr' %}">USR 成果</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'aiot' %}active{% endif %}" href="{% url 'aiot' %}">
+                            <i class="bi bi-cpu me-1"></i>AIoT 科技
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'gallery' %}active{% endif %}" href="{% url 'gallery' %}">
+                            <i class="bi bi-images me-1"></i>相簿
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'contact' %}">
+                            <i class="bi bi-envelope me-1"></i>聯絡我們
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="chatbot-widget" id="chatbotWidget" data-chat-api="{% url 'chat-api-alias' %}" data-clear-api="{% url 'chat-clear' %}">
+        <section class="chatbot-panel" id="chatbotPanel" aria-label="AI 聊天助理" aria-hidden="true">
+            <div class="chatbot-header">
+                <div class="chatbot-title">
+                    <span class="chatbot-avatar"><i class="bi bi-robot"></i></span>
+                    <div>
+                        <div class="chatbot-name">風雲 AI 助理</div>
+                        <div class="chatbot-status">活動、故事、AIoT 與水質查詢</div>
+                    </div>
+                </div>
+                <div class="chatbot-actions">
+                    <button type="button" class="chatbot-icon-btn" id="chatbotClear" aria-label="清除對話" title="清除對話">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                    <button type="button" class="chatbot-icon-btn" id="chatbotClose" aria-label="關閉聊天" title="關閉聊天">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages" aria-live="polite">
+                <div class="chatbot-message bot">
+                    <div class="chatbot-bubble">你好，我可以查活動、故事、新聞、AIoT 專案，也能看池塘水質。</div>
+                </div>
+            </div>
+            <form class="chatbot-form" id="chatbotForm">
+                <input type="text" id="chatbotInput" class="chatbot-input" placeholder="輸入訊息..." autocomplete="off" aria-label="輸入訊息">
+                <button type="submit" class="chatbot-send" id="chatbotSend" aria-label="送出">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+        </section>
+        <button type="button" class="chatbot-toggle" id="chatbotToggle" aria-label="開啟聊天" aria-expanded="false" aria-controls="chatbotPanel">
+            <i class="bi bi-chat-dots-fill"></i>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5 class="footer-title">風雲客棧</h5>
+                    <p class="text-muted small">水井村數位入口平台<br>雲林縣水井村 USR 計畫成果展示</p>
+                    <p class="text-muted small">
+                        <i class="bi bi-geo-alt-fill me-1"></i>653 雲林縣口湖鄉水井村<br>
+                        <i class="bi bi-telephone-fill me-1"></i>(05) 631-5731<br>
+                        <i class="bi bi-envelope-fill me-1"></i>usr@nfu.edu.tw
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="footer-subtitle">快速連結</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="footer-link">首頁</a></li>
+                        <li><a href="{% url 'about' %}" class="footer-link">關於我們</a></li>
+                        <li><a href="{% url 'event_list' %}" class="footer-link">活動資訊</a></li>
+                        <li><a href="{% url 'story' %}" class="footer-link">水井故事</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="footer-subtitle">特色專案</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'aiot' %}" class="footer-link">AIoT 科技</a></li>
+                        <li><a href="{% url 'usr' %}" class="footer-link">USR 成果</a></li>
+                        <li><a href="{% url 'activities' %}" class="footer-link">體驗課程</a></li>
+                        <li><a href="{% url 'gallery' %}" class="footer-link">影像相簿</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="footer-subtitle">關於 USR 計畫</h6>
+                    <p class="text-muted small">
+                        國立虎尾科技大學透過 USR（大學社會責任）計畫，
+                        深耕水井村，以科技帶動在地發展，打造智慧農漁村典範。
+                    </p>
+                    <div class="d-flex gap-2 mt-2">
+                        <a href="https://ossr.nfu.edu.tw" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-globe me-1"></i>NFU OSSR
+                        </a>
+                        <a href="{% url 'contact' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-chat-dots me-1"></i>聯絡我們
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr class="footer-divider mt-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-muted small">
+                    &copy; 2026 風雲客棧 | 國立虎尾科技大學 USR 計畫
+                </div>
+                <div class="col-md-6 text-end text-muted small">
+                    Powered by Django &amp; Python &bull; 部署於 PythonAnywhere
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'main/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,230 @@
+[
+  {
+    "model": "main.event",
+    "pk": 1,
+    "fields": {
+      "title": "不蒜花香氛體驗工作坊",
+      "description": "由在地社區媽媽帶領，親手採摘水井村特產不蒜花，製作天然香氛產品。體驗傳統農業智慧與現代文創的完美結合，每位學員可帶走親手製作的香氛禮盒。適合親子、情侶、學生團體參與，名額有限，歡迎踴躍報名！",
+      "date": "2026-04-20",
+      "location": "風雲客棧 體驗工坊",
+      "category": "activity",
+      "image": null,
+      "is_featured": true,
+      "created_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "main.event",
+    "pk": 2,
+    "fields": {
+      "title": "OTTO 機器人 STEM 體驗營",
+      "description": "由虎科大學生設計的 OTTO 機器人進入社區！透過積木程式設計，控制機器人走路、跳舞、避障，讓小朋友在遊戲中學習 STEM 概念。課程由虎科大學生志工帶領，趣味十足！適合國小三年級以上學生。",
+      "date": "2026-04-26",
+      "location": "風雲客棧 科技展示區",
+      "category": "aiot",
+      "image": null,
+      "is_featured": true,
+      "created_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "main.event",
+    "pk": 3,
+    "fields": {
+      "title": "姻緣花 DIY 花藝課程",
+      "description": "以水井村特産花卉為素材，由在地花藝老師親自指導，學習傳統與現代花藝結合。親手製作一束充滿水井記憶的「姻緣花束」，適合情侶、閨蜜、親子共同體驗，留下美好回憶。",
+      "date": "2026-05-03",
+      "location": "風雲客棧 花藝教室",
+      "category": "activity",
+      "image": null,
+      "is_featured": false,
+      "created_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "main.event",
+    "pk": 4,
+    "fields": {
+      "title": "USR 成果發表暨社區論壇",
+      "description": "國立虎尾科技大學 USR 計畫年度成果發表，展示師生在水井村的智慧農業、AIoT 系統、社區文化保存等各項成果。邀請社區居民、各界人士共同見證，探討大學社會責任的實踐意義。",
+      "date": "2026-05-10",
+      "location": "虎尾科技大學 國際會議廳",
+      "category": "usr",
+      "image": null,
+      "is_featured": true,
+      "created_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "main.event",
+    "pk": 5,
+    "fields": {
+      "title": "智慧農業參觀與 AIoT 展示",
+      "description": "帶領訪客參觀水井村智慧農業示範場域，實地了解 IoT 水質監測、土壤感測器的運作方式，並觀看 AI 分析系統即時展示。了解科技如何改變傳統農漁業，打造永續智慧村落。",
+      "date": "2026-05-17",
+      "location": "水井村 AIoT 示範農場",
+      "category": "aiot",
+      "image": null,
+      "is_featured": false,
+      "created_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "main.event",
+    "pk": 6,
+    "fields": {
+      "title": "Matrix 機器人競技工作坊",
+      "description": "進階版機器人課程！以 Matrix 機器人平台進行感測器整合、路徑規劃與策略競技。學員分組競賽，培養邏輯思維、程式設計與團隊合作能力。適合國中至大學生，有基礎程式概念更佳。",
+      "date": "2026-05-24",
+      "location": "風雲客棧 科技展示區",
+      "category": "activity",
+      "image": null,
+      "is_featured": false,
+      "created_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "main.story",
+    "pk": 1,
+    "fields": {
+      "title": "老農民的心聲：科技來了，土地更親了",
+      "content": "許伯伯在水井村種了四十多年的稻，從沒想過有一天種田也要看手機。\n\n「剛開始那些學生來安裝什麼感測器，我心裡是懷疑的，覺得這些都是花架子，種了這麼久的田，靠的是手感、靠的是天氣，哪需要機器？」許伯伯說，語氣裡還帶著一點驕傲。\n\n但漸漸地，他發現有些事情確實不一樣了。每次暴雨前，手機會提醒他土壤已經飽和，不需要再灌溉；每次魚塭水溫異常，系統會在凌晨兩點就發出警報，讓他早一步應對，少損失了不知多少條魚。\n\n「現在我有時候會問那個 App，今天要不要澆水。」他笑著說，臉上是真心接受科技的樣子，「不是不相信自己的經驗，是科技讓我更了解這片土地。」\n\n這是水井村的故事，也是科技與傳統共存的故事。",
+      "author": "許老農（水井村居民）",
+      "image": null,
+      "published_date": "2026-03-15",
+      "is_featured": true
+    }
+  },
+  {
+    "model": "main.story",
+    "pk": 2,
+    "fields": {
+      "title": "返鄉青年：我選擇留下來的理由",
+      "content": "陳小明大學念的是資訊工程，畢業那年同學都去了新竹、台北的科技公司，只有他選擇回到水井村。\n\n「大家都覺得奇怪，說這裡沒有未來。但我覺得恰恰相反——越是傳統的地方，科技能帶來的改變就越大。」\n\n他回到爸爸的魚塭，用大學學的技術，自己架設了一套 IoT 水質監測系統。從此，不需要每天凌晨四點起床去查水溫，手機就能告訴他一切。\n\n後來他加入了虎科大 USR 計畫的師生團隊，協助推廣 AIoT 農漁業技術。他說：「我想讓更多水井村的農民知道，科技不是都市的東西，科技也可以是農村的。」\n\n現在，他的魚塭成了水井村的智慧漁業示範場域，每年都有學生來參觀學習。他說，這是他最有成就感的事。",
+      "author": "陳小明（返鄉青年創業者）",
+      "image": null,
+      "published_date": "2026-03-20",
+      "is_featured": true
+    }
+  },
+  {
+    "model": "main.story",
+    "pk": 3,
+    "fields": {
+      "title": "社區媽媽的不蒜花夢：用香味說故事",
+      "content": "不蒜花不是什麼稀奇的植物，在水井村的田埂邊、屋子旁到處都是。但在林阿姨的眼裡，這些白色小花是寶。\n\n「我從小就記得媽媽把不蒜花曬乾放在衣櫃裡，說能防蟲。後來才知道它有這麼多用途——可以做精油、可以做香氛包、可以做沐浴鹽。」\n\n五年前，林阿姨和幾位社區媽媽一起組成了「水井香草工作坊」，開始把不蒜花做成文創產品。一開始只是在地攤賣，後來虎科大的學生幫她們設計包裝、建立品牌，還教她們怎麼在網路上銷售。\n\n「現在有人從台北、高雄來預購，說是要送禮用。我沒想到這些田邊的野花能走這麼遠。」林阿姨說著，臉上藏不住笑。\n\n水井的香味，正在飄向更遠的地方。",
+      "author": "林阿姨（水井香草工作坊創辦人）",
+      "image": null,
+      "published_date": "2026-03-25",
+      "is_featured": true
+    }
+  },
+  {
+    "model": "main.aiotproject",
+    "pk": 1,
+    "fields": {
+      "title": "智慧養殖水質監測系統",
+      "description": "在水井村魚塭部署多組水下感測器，即時監測 pH 值、溶氧量、水溫、氨氮等關鍵指標。AI 模型分析數據趨勢，異常時自動推播警報至養殖戶手機，大幅降低損失風險。",
+      "tech_stack": "Raspberry Pi IoT MQTT Django",
+      "image": null,
+      "demo_url": "",
+      "order": 1
+    }
+  },
+  {
+    "model": "main.aiotproject",
+    "pk": 2,
+    "fields": {
+      "title": "智慧農業灌溉控制系統",
+      "description": "結合土壤濕度感測器、氣象 API 與 AI 決策模型，自動計算最佳灌溉時機與水量。透過手機 App 遠端控制水泵，節水效率提升 40%，特別適用於不蒜花、蔬菜種植管理。",
+      "tech_stack": "Arduino ESP32 Python AI 節水",
+      "image": null,
+      "demo_url": "",
+      "order": 2
+    }
+  },
+  {
+    "model": "main.aiotproject",
+    "pk": 3,
+    "fields": {
+      "title": "水質即時監測公開平台",
+      "description": "在水井村主要水源設立監測站，24 小時不間斷監測飲用水水質指標，資料即時上傳雲端儀表板，公開透明，村民可隨時查閱，守護用水安全。",
+      "tech_stack": "IoT 雲端 Dashboard 開放資料",
+      "image": null,
+      "demo_url": "",
+      "order": 3
+    }
+  },
+  {
+    "model": "main.aiotproject",
+    "pk": 4,
+    "fields": {
+      "title": "OTTO 機器人 STEM 教育系統",
+      "description": "虎科大學生自製 OTTO 機器人教具，外型親切、操作直覺，搭配積木程式設計平台，讓社區孩童輕鬆入門機器人與程式設計，已服務超過 300 位學童。",
+      "tech_stack": "Arduino 3D列印 積木程式 STEM",
+      "image": null,
+      "demo_url": "",
+      "order": 4
+    }
+  },
+  {
+    "model": "main.aiotproject",
+    "pk": 5,
+    "fields": {
+      "title": "樹藝 AI — 水井三寶辨識系統",
+      "description": "以深度學習影像辨識技術，自動辨識水井村三大特色農產（水井三寶）的品質與成熟度，協助農民進行分級作業，減少人工判斷誤差，獲全國競賽肯定。",
+      "tech_stack": "Python TensorFlow 影像辨識 AI",
+      "image": null,
+      "demo_url": "",
+      "order": 5
+    }
+  },
+  {
+    "model": "main.aiotproject",
+    "pk": 6,
+    "fields": {
+      "title": "智慧行銷 LINE Bot 平台",
+      "description": "整合 LINE 官方帳號與後台管理系統，協助在地農民直接推播農產訊息、接收訂單，省去中間商，農民收益提升約 20%。AI 分析消費者偏好，自動優化推播策略。",
+      "tech_stack": "LINE Bot Django AI行銷 電商",
+      "image": null,
+      "demo_url": "",
+      "order": 6
+    }
+  },
+  {
+    "model": "main.newsitem",
+    "pk": 1,
+    "fields": {
+      "title": "虎科大 USR 計畫深耕水井村，智慧農業成效卓著",
+      "source": "雲林縣政府新聞",
+      "url": "https://ossr.nfu.edu.tw",
+      "summary": "國立虎尾科技大學透過 USR 計畫，長期深耕雲林水井村，結合 AIoT 技術提升農漁業效能，並辦理多項社區體驗活動，獲教育部高度肯定。",
+      "published_date": "2026-03-01",
+      "image": null
+    }
+  },
+  {
+    "model": "main.newsitem",
+    "pk": 2,
+    "fields": {
+      "title": "水井村光光雕牆 AR 互動導覽正式開放，吸引縣內外遊客",
+      "source": "民報",
+      "url": "",
+      "summary": "由虎科大師生設計的水井村 AR 光雕互動裝置正式對外開放，結合傳統文化與現代科技，吸引大批遊客前往體驗，成為雲林縣新興觀光亮點。",
+      "published_date": "2026-02-15",
+      "image": null
+    }
+  },
+  {
+    "model": "main.newsitem",
+    "pk": 3,
+    "fields": {
+      "title": "大學社會責任典範：虎科大與水井社區共創智慧永續村落",
+      "source": "教育部 USR 新聞稿",
+      "url": "https://ossr.nfu.edu.tw",
+      "summary": "教育部 USR 計畫成果展示，虎科大水井村計畫以「科技、教育、文化」三軸並進，成為大學社會責任實踐的優良典範，師生共同獲頒年度卓越獎。",
+      "published_date": "2026-01-20",
+      "image": null
+    }
+  }
+]

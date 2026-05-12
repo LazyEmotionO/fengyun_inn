@@ -1,0 +1,188 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}體驗活動課程 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">體驗活動課程</h1>
+        <p class="lead">走進水井村，用五感感受在地之美</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">體驗課程</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Signature Activities -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">特色體驗課程</h2>
+            <p class="text-muted">風雲客棧招牌體驗，每個都是獨一無二的水井記憶</p>
+        </div>
+
+        <!-- 不蒜花 -->
+        <div class="row align-items-center g-5 mb-5 pb-5 border-bottom">
+            <div class="col-md-6">
+                <img src="{% static 'main/images/shuijin/busuan_flower.jpg' %}" class="img-fluid rounded shadow" alt="不蒜花體驗">
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-success mb-2 fs-6">招牌課程</span>
+                <h3 class="mb-3">不蒜花體驗工作坊</h3>
+                <p>不蒜花（又稱文殊蘭）是水井村的特色農作，散發獨特的清甜香氣。
+                在地媽媽們帶領學員親手採摘、製作不蒜花香氛產品，
+                將傳統農業智慧轉化為文創商品，帶走水井的味道。</p>
+                <ul class="list-unstyled activity-details mt-3">
+                    <li><i class="bi bi-clock me-2 text-primary"></i>時長：2 小時</li>
+                    <li><i class="bi bi-people me-2 text-primary"></i>人數：5–20 人</li>
+                    <li><i class="bi bi-gift me-2 text-primary"></i>含：不蒜花香氛成品一份</li>
+                    <li><i class="bi bi-calendar-check me-2 text-primary"></i>需提前 3 天預約</li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-calendar-plus me-2"></i>預約報名
+                </a>
+            </div>
+        </div>
+
+        <!-- 姻緣花 -->
+        <div class="row align-items-center g-5 mb-5 pb-5 border-bottom flex-md-row-reverse">
+            <div class="col-md-6">
+                <img src="{% static 'main/images/shuijin/yinyuan_flower.jpg' %}" class="img-fluid rounded shadow" alt="姻緣花體驗">
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-danger mb-2 fs-6">人氣活動</span>
+                <h3 class="mb-3">姻緣花 DIY 課程</h3>
+                <p>以水井村特產花卉為素材，學習傳統花藝與現代設計的結合，
+                親手製作「姻緣花束」。課程由在地花藝老師親自指導，
+                適合情侶、家庭、學生團體參與，留下美好回憶。</p>
+                <ul class="list-unstyled activity-details mt-3">
+                    <li><i class="bi bi-clock me-2 text-primary"></i>時長：1.5 小時</li>
+                    <li><i class="bi bi-people me-2 text-primary"></i>人數：4–15 人</li>
+                    <li><i class="bi bi-gift me-2 text-primary"></i>含：親手製作花束</li>
+                    <li><i class="bi bi-calendar-check me-2 text-primary"></i>需提前 2 天預約</li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-calendar-plus me-2"></i>預約報名
+                </a>
+            </div>
+        </div>
+
+        <!-- OTTO Robot -->
+        <div class="row align-items-center g-5 mb-5 pb-5 border-bottom">
+            <div class="col-md-6">
+                <img src="{% static 'main/images/shuijin/otto_robot.jpg' %}" class="img-fluid rounded shadow" alt="OTTO機器人">
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-primary mb-2 fs-6">科技體驗</span>
+                <h3 class="mb-3">OTTO 機器人互動體驗</h3>
+                <p>由虎科大學生設計的 OTTO 機器人，外型可愛、操作簡單，
+                適合兒童與青少年體驗入門機器人程式設計。
+                學員可透過簡易積木程式控制機器人走路、跳舞、避障，
+                在遊戲中學習 STEM 概念。</p>
+                <ul class="list-unstyled activity-details mt-3">
+                    <li><i class="bi bi-clock me-2 text-primary"></i>時長：2 小時</li>
+                    <li><i class="bi bi-people me-2 text-primary"></i>人數：5–30 人</li>
+                    <li><i class="bi bi-mortarboard me-2 text-primary"></i>適合：國小至高中生</li>
+                    <li><i class="bi bi-calendar-check me-2 text-primary"></i>需提前 5 天預約</li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-calendar-plus me-2"></i>預約報名
+                </a>
+            </div>
+        </div>
+
+        <!-- Matrix Robot -->
+        <div class="row align-items-center g-5 flex-md-row-reverse">
+            <div class="col-md-6">
+                <img src="{% static 'main/images/shuijin/matrix_robot.jpg' %}" class="img-fluid rounded shadow" alt="Matrix機器人">
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-warning text-dark mb-2 fs-6">進階課程</span>
+                <h3 class="mb-3">Matrix 機器人競技課程</h3>
+                <p>以 Matrix 機器人平台為基礎，帶領學員體驗進階機器人設計與競技。
+                學員將學習感測器整合、路徑規劃與策略思考，最後進行小型比賽，
+                培養邏輯思維與團隊合作能力。</p>
+                <ul class="list-unstyled activity-details mt-3">
+                    <li><i class="bi bi-clock me-2 text-primary"></i>時長：3 小時</li>
+                    <li><i class="bi bi-people me-2 text-primary"></i>人數：6–24 人（分組）</li>
+                    <li><i class="bi bi-mortarboard me-2 text-primary"></i>適合：國中至大學生</li>
+                    <li><i class="bi bi-calendar-check me-2 text-primary"></i>需提前 7 天預約</li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-calendar-plus me-2"></i>預約報名
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DB Events -->
+{% if page_obj.object_list %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">近期體驗場次</h2>
+        </div>
+        <div class="row g-4">
+            {% for event in page_obj %}
+            <div class="col-md-4">
+                <div class="card event-card h-100 shadow-sm">
+                    {% if event.image %}
+                    <img src="{{ event.image.url }}" class="card-img-top event-img" alt="{{ event.title }}">
+                    {% else %}
+                    <div class="event-img-placeholder d-flex align-items-center justify-content-center">
+                        <i class="bi bi-calendar-event display-3 text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text text-muted small">{{ event.description|truncatechars:100 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="bi bi-calendar me-1"></i>{{ event.date }}</small>
+                        <a href="{% url 'event_detail' event.pk %}" class="btn btn-sm btn-primary">詳情</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section class="py-5 cta-section">
+    <div class="container text-center">
+        <h2 class="mb-3">想預約體驗？</h2>
+        <p class="lead text-muted mb-4">請透過聯絡表單與我們預約，或直接撥打電話洽詢</p>
+        <a href="{% url 'contact' %}" class="btn btn-primary btn-lg me-3">
+            <i class="bi bi-envelope me-2"></i>線上預約
+        </a>
+        <a href="tel:056315731" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-telephone me-2"></i>(05) 631-5731
+        </a>
+    </div>
+</section>
+{% endblock %}

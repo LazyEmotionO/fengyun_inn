@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>風雲客棧 AI 導覽助理</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      background: #f5f7fa;
+      color: #222;
+    }
+    h1 { font-size: 1.4rem; margin: 0 0 0.5rem; }
+    .subtitle { color: #666; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    #log {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      height: 60vh;
+      overflow-y: auto;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 1rem;
+    }
+    .msg { margin-bottom: 1rem; line-height: 1.6; }
+    .msg.user { text-align: right; }
+    .msg .who { font-size: 0.75rem; color: #888; margin-bottom: 0.2rem; }
+    .msg .body {
+      display: inline-block;
+      padding: 0.6rem 0.9rem;
+      border-radius: 12px;
+      max-width: 85%;
+      white-space: pre-wrap;
+      text-align: left;
+    }
+    .msg.user .body { background: #2d6cdf; color: white; }
+    .msg.bot .body { background: #eef2f7; color: #222; }
+    .msg.error .body { background: #ffe4e4; color: #c00; }
+    form { display: flex; gap: 0.5rem; }
+    input[type=text] {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      background: #2d6cdf;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    .hint {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+    .hint code {
+      background: #eef2f7;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>風雲客棧 AI 導覽助理</h1>
+  <div class="subtitle">問我活動、在地故事、新聞與 AIoT 展示</div>
+
+  <div id="log"></div>
+
+  <form id="form">
+    <input type="text" id="input" placeholder="例：最近有哪些活動？" autocomplete="off" autofocus>
+    <button id="send" type="submit">送出</button>
+  </form>
+
+  <p class="hint">
+    試試看：<code>最近有哪些活動？</code> ／ <code>介紹 AIoT 展示</code>
+  </p>
+
+  <script>
+    const log = document.getElementById('log');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+
+    function addMsg(who, body, kind = 'bot') {
+      const div = document.createElement('div');
+      div.className = `msg ${kind}`;
+      div.innerHTML = `<div class="who">${who}</div><div class="body"></div>`;
+      div.querySelector('.body').textContent = body;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
+      addMsg('你', message, 'user');
+      input.value = '';
+      sendBtn.disabled = true;
+
+      try {
+        const resp = await fetch('api/chat/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          addMsg('助理', data.reply || '（沒回東西）');
+        } else {
+          addMsg('系統', data.error || '錯了', 'error');
+        }
+      } catch (err) {
+        addMsg('系統', `連不上：${err.message}`, 'error');
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>

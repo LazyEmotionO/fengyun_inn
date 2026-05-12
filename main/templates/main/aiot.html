@@ -1,0 +1,299 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}AIoT 智慧科技 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">AIoT 智慧科技</h1>
+        <p class="lead">連結科技與在地，打造水井村智慧永續生活</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">AIoT 科技</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- AIoT Intro -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <h2 class="mb-4">什麼是 AIoT？</h2>
+                <p class="lead">AIoT = AI（人工智慧）+ IoT（物聯網）</p>
+                <p>透過感測器收集環境數據，結合人工智慧分析，實現農漁業的智慧化管理，
+                不僅提升生產效率，更減少資源浪費，邁向永續農村的目標。</p>
+                <p>虎科大師生在水井村部署了多套 AIoT 系統，從水質監測到智慧灌溉，
+                讓傳統農漁村升級為科技示範場域。</p>
+            </div>
+            <div class="col-md-6">
+                <img src="{% static 'main/images/fengyun/aiot_intro.jpg' %}" class="img-fluid rounded shadow" alt="AIoT科技">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AIoT Projects -->
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title text-white">AIoT 專案一覽</h2>
+            <p class="text-secondary">虎科大在水井村部署的智慧科技系統</p>
+        </div>
+
+        {% if projects %}
+        <div class="row g-4">
+            {% for project in projects %}
+            <div class="col-md-4">
+                <div class="card bg-secondary border-0 h-100">
+                    {% if project.image %}
+                    <img src="{{ project.image.url }}" class="card-img-top" style="height:200px;object-fit:cover;" alt="{{ project.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title text-white">{{ project.title }}</h5>
+                        <p class="card-text text-light small">{{ project.description }}</p>
+                        {% if project.tech_stack %}
+                        <div class="mt-2">
+                            {% for tech in project.tech_stack.split %}
+                            <span class="badge bg-primary me-1">{{ tech }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Default AIoT Cards -->
+        <div class="row g-4">
+            <!-- Smart Aquaculture -->
+            <div class="col-md-4">
+                <div class="card border-0 h-100 aiot-project-card">
+                    <div class="card-body p-4">
+                        <div class="aiot-project-icon mb-3">&#127758;</div>
+                        <h5>智慧養殖系統</h5>
+                        <p class="text-secondary small">部署水下感測器，即時監測魚塭水質（pH 值、溶氧量、溫度），
+                        AI 分析異常並自動通知養殖戶，大幅降低魚蝦死亡率。</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary me-1">IoT</span>
+                            <span class="badge bg-info me-1">水質監測</span>
+                            <span class="badge bg-success">AI分析</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Smart Agriculture -->
+            <div class="col-md-4">
+                <div class="card border-0 h-100 aiot-project-card">
+                    <div class="card-body p-4">
+                        <div class="aiot-project-icon mb-3">&#127807;</div>
+                        <h5>智慧農業灌溉</h5>
+                        <p class="text-secondary small">結合土壤濕度感測器與氣象資料，AI 自動決策灌溉時機與水量，
+                        節水效率提升 40%，適用於水井村的不蒜花與蔬菜種植。</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary me-1">IoT</span>
+                            <span class="badge bg-warning me-1">土壤感測</span>
+                            <span class="badge bg-success">節水灌溉</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Water Quality Monitoring -->
+            <div class="col-md-4">
+                <div class="card border-0 h-100 aiot-project-card">
+                    <div class="card-body p-4">
+                        <div class="aiot-project-icon mb-3">&#128167;</div>
+                        <h5>水質即時監測站</h5>
+                        <p class="text-secondary small">在水井村水源處建立監測站，24 小時監測水質指標，
+                        資料即時上傳雲端，守護村民用水安全，數據公開透明。</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary me-1">IoT</span>
+                            <span class="badge bg-info me-1">雲端儀表板</span>
+                            <span class="badge bg-danger">即時警報</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- OTTO Robot -->
+            <div class="col-md-4">
+                <div class="card border-0 h-100 aiot-project-card">
+                    <div class="card-body p-4">
+                        <div class="aiot-project-icon mb-3">&#129302;</div>
+                        <h5>OTTO &amp; Matrix 機器人</h5>
+                        <p class="text-secondary small">學生設計的 OTTO 機器人進入水井村，帶領孩童體驗 STEM 教育，
+                        Matrix 機器人則用於農業輔助任務示範，激發在地科技興趣。</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary me-1">Arduino</span>
+                            <span class="badge bg-warning me-1">STEM教育</span>
+                            <span class="badge bg-success">社區服務</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Smart Marketing -->
+            <div class="col-md-4">
+                <div class="card border-0 h-100 aiot-project-card">
+                    <div class="card-body p-4">
+                        <div class="aiot-project-icon mb-3">&#128200;</div>
+                        <h5>智慧行銷平台</h5>
+                        <p class="text-secondary small">透過數位平台整合在地農產品銷售，AI 分析市場趨勢，
+                        結合 LINE 官方帳號推播活動訊息，協助農民直銷，去除中間商剝削。</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary me-1">AI行銷</span>
+                            <span class="badge bg-info me-1">LINE Bot</span>
+                            <span class="badge bg-success">直銷平台</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Tree AI / Water Well Three Treasures -->
+            <div class="col-md-4">
+                <div class="card border-0 h-100 aiot-project-card">
+                    <div class="card-body p-4">
+                        <div class="aiot-project-icon mb-3">&#127795;</div>
+                        <h5>樹藝 AI — 水井三寶</h5>
+                        <p class="text-secondary small">以 AI 影像辨識技術輔助在地特色農作物（水井三寶）的品質檢測與分級，
+                        獲全國競賽肯定，成為科技農業的成功示範案例。</p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary me-1">AI影像辨識</span>
+                            <span class="badge bg-warning me-1">品質分級</span>
+                            <span class="badge bg-danger">競賽獎項</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- AR Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">AR 互動導覽</h2>
+            <p class="text-muted">水井光光雕牆 — 虛實融合的在地記憶</p>
+        </div>
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <div class="row g-3">
+                    <div class="col-6"><img src="{% static 'main/images/fengyun/img2.jpg' %}" class="img-fluid rounded shadow" alt="AR導覽"></div>
+                    <div class="col-6"><img src="{% static 'main/images/fengyun/img4.jpg' %}" class="img-fluid rounded shadow" alt="光雕牆"></div>
+                    <div class="col-12"><img src="{% static 'main/images/shuijin/img1.jpg' %}" class="img-fluid rounded shadow" alt="水井村"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="mb-4">水井光光雕牆</h3>
+                <p>由虎科大師生與在地藝術家合作，以光雕投影與 AR 擴增實境打造的沉浸式體驗裝置。</p>
+                <div class="ar-steps mt-4">
+                    <div class="d-flex mb-3">
+                        <div class="step-num me-3">1</div>
+                        <div>
+                            <h6>掃描 QR Code</h6>
+                            <p class="text-muted small mb-0">使用手機掃描牆面 QR Code，開啟 AR 導覽頁面</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="step-num me-3">2</div>
+                        <div>
+                            <h6>對準光雕牆</h6>
+                            <p class="text-muted small mb-0">將鏡頭對準光雕牆，畫面中的故事即刻「活起來」</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="step-num me-3">3</div>
+                        <div>
+                            <h6>互動探索</h6>
+                            <p class="text-muted small mb-0">觸碰螢幕中的元素，聆聽水井村的故事與歷史</p>
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'activities' %}" class="btn btn-primary mt-3 me-2">
+                    <i class="bi bi-calendar-check me-2"></i>預約 AR 導覽體驗
+                </a>
+                <a href="{% url 'ar' %}" class="btn btn-warning mt-3">
+                    <i class="bi bi-camera-fill me-2"></i>立即體驗 AR
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Video Links from OSSR -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">影音紀錄</h2>
+            <p class="text-muted">虎科大 USR 計畫影片紀錄（由 NFU OSSR 提供）</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="ratio ratio-16x9">
+                        <div class="bg-dark d-flex align-items-center justify-content-center rounded-top">
+                            <div class="text-center text-white p-3">
+                                <i class="bi bi-play-circle-fill display-3 mb-2 d-block text-danger"></i>
+                                <p class="small mb-2">114年深耕計畫目標二成果影片</p>
+                                <a href="https://ossr.nfu.edu.tw/zh_tw/practices/getVideoList" target="_blank" class="btn btn-sm btn-outline-light">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>前往觀看
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>USR 計畫年度成果</h6>
+                        <small class="text-muted">虎科大 OSSR 官網</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="ratio ratio-16x9">
+                        <div class="bg-secondary d-flex align-items-center justify-content-center rounded-top">
+                            <div class="text-center text-white p-3">
+                                <i class="bi bi-play-circle-fill display-3 mb-2 d-block text-warning"></i>
+                                <p class="small mb-2">OTTO 機器人 × 社區教育</p>
+                                <a href="https://ossr.nfu.edu.tw/zh_tw/practices/getVideoList" target="_blank" class="btn btn-sm btn-outline-light">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>前往觀看
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>機器人進社區紀錄</h6>
+                        <small class="text-muted">虎科大 OSSR 官網</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="ratio ratio-16x9">
+                        <div class="bg-primary d-flex align-items-center justify-content-center rounded-top">
+                            <div class="text-center text-white p-3">
+                                <i class="bi bi-play-circle-fill display-3 mb-2 d-block"></i>
+                                <p class="small mb-2">智慧農漁業 AIoT 展示</p>
+                                <a href="https://ossr.nfu.edu.tw/zh_tw/practices/getVideoList" target="_blank" class="btn btn-sm btn-outline-light">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>前往觀看
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>AIoT 系統實地演示</h6>
+                        <small class="text-muted">虎科大 OSSR 官網</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="https://ossr.nfu.edu.tw/zh_tw/practices/getVideoList" target="_blank" class="btn btn-outline-primary">
+                <i class="bi bi-collection-play me-2"></i>查看所有 USR 影片（虎科大 OSSR）
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

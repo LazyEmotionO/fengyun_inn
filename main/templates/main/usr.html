@@ -1,0 +1,190 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}USR 成果展示 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">USR 成果展示</h1>
+        <p class="lead">國立虎尾科技大學「大學社會責任」計畫成果</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">USR 成果</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- USR Intro -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <h2 class="mb-4">什麼是 USR？</h2>
+                <p class="lead">USR（University Social Responsibility）大學社會責任，
+                是教育部推動的重要計畫，鼓勵大學走入社區，以實際行動回饋社會。</p>
+                <p>國立虎尾科技大學自 2020 年起深耕水井村，透過<strong>科技、教育、文化</strong>三大面向，
+                協助社區轉型發展，培育在地人才，留住青年返鄉的可能。</p>
+                <div class="row g-3 mt-3">
+                    <div class="col-4 text-center">
+                        <div class="stat-number text-primary">50+</div>
+                        <div class="stat-label text-muted small">參與師生</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="stat-number text-primary">30+</div>
+                        <div class="stat-label text-muted small">活動場次</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="stat-number text-primary">500+</div>
+                        <div class="stat-label text-muted small">受益人次</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <img src="{% static 'main/images/fengyun/img9.jpg' %}" class="img-fluid rounded shadow" alt="USR活動">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Teacher & Student Achievements -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">師生表現亮點</h2>
+            <p class="text-muted">虎科大師生在 USR 計畫中的傑出成就</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <div class="achievement-icon mb-3">&#128105;&#8205;&#127979;</div>
+                        <h5>教師研究成果</h5>
+                        <ul class="list-unstyled mt-3">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>發表 SCI/SSCI 國際期刊論文 5 篇</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>取得農業 IoT 相關專利 3 件</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>獲得教育部 USR 計畫優等獎</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>帶領跨域課程，學生修課人數達 200 人</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <div class="achievement-icon mb-3">&#127775;</div>
+                        <h5>學生服務學習成果</h5>
+                        <ul class="list-unstyled mt-3">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>服務學習時數累計 2,000 小時</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>學生創業競賽獲獎 6 件</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>機器人競賽全國前三名</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>協助開發 AR 導覽、AIoT 系統各 1 套</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Video Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">影片紀錄</h2>
+            <p class="text-muted">虎科大 USR 計畫精彩影片</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="ratio ratio-16x9">
+                        <div class="bg-dark d-flex align-items-center justify-content-center rounded-top">
+                            <div class="text-center text-white p-3">
+                                <i class="bi bi-play-circle display-3 mb-2 d-block"></i>
+                                <p class="small">水井村 USR 計畫成果影片</p>
+                                <a href="https://ossr.nfu.edu.tw/zh_tw/practices/getVideoList" target="_blank" class="btn btn-sm btn-outline-light">
+                                    前往觀看
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>USR 計畫總成果回顧</h6>
+                        <small class="text-muted">虎科大 USR 官網</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="ratio ratio-16x9">
+                        <div class="bg-secondary d-flex align-items-center justify-content-center rounded-top">
+                            <div class="text-center text-white p-3">
+                                <i class="bi bi-play-circle display-3 mb-2 d-block"></i>
+                                <p class="small">智慧農漁業示範影片</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>AIoT 智慧農漁業實作</h6>
+                        <small class="text-muted">水井村現場紀錄</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="ratio ratio-16x9">
+                        <div class="bg-primary d-flex align-items-center justify-content-center rounded-top">
+                            <div class="text-center text-white p-3">
+                                <i class="bi bi-play-circle display-3 mb-2 d-block"></i>
+                                <p class="small">OTTO 機器人體驗課程</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>機器人進社區活動</h6>
+                        <small class="text-muted">學生志工紀錄</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Section -->
+{% if news_items %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">相關新聞</h2>
+        </div>
+        <div class="row g-3">
+            {% for news in news_items %}
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            {% if news.image %}
+                            <img src="{{ news.image.url }}" class="rounded me-3" style="width:80px;height:80px;object-fit:cover;" alt="">
+                            {% else %}
+                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width:80px;height:80px;">
+                                <i class="bi bi-newspaper text-muted fs-4"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ news.title }}</h6>
+                                <small class="text-muted">{{ news.source }} | {{ news.published_date }}</small>
+                                <p class="small text-muted mt-1 mb-0">{{ news.summary|truncatechars:80 }}</p>
+                                {% if news.url %}<a href="{{ news.url }}" target="_blank" class="btn btn-link btn-sm p-0 mt-1">閱讀全文</a>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

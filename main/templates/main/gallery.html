@@ -1,0 +1,189 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}影像相簿 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">影像相簿</h1>
+        <p class="lead">用鏡頭記錄水井村的每個精彩瞬間</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">影像相簿</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+        <!-- Filter Tabs -->
+        <ul class="nav nav-tabs justify-content-center mb-5" id="galleryTab">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#fengyun">
+                    <i class="bi bi-house-door me-1"></i>風雲客棧
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#shuijin">
+                    <i class="bi bi-water me-1"></i>水井村風光
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- 風雲客棧 Gallery -->
+            <div class="tab-pane fade show active" id="fengyun">
+                <div class="row g-2" id="fengyunGallery">
+                    {% for i in "1234567891011121314151617181920"|make_list %}
+                    {% endfor %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img1.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img1.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img2.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img2.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img3.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img3.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img4.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img4.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img5.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img5.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img6.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img6.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img7.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img7.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img8.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img8.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img9.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img9.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/img10.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/img10.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/DSC09111.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/DSC09111.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧" onerror="this.closest('.col-6').style.display='none'">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/fengyun/DSC09115.jpg' %}" data-lightbox="fengyun" class="gallery-item">
+                            <img src="{% static 'main/images/fengyun/DSC09115.jpg' %}" class="img-fluid rounded gallery-thumb" alt="風雲客棧" onerror="this.closest('.col-6').style.display='none'">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 水錦照片 Gallery -->
+            <div class="tab-pane fade" id="shuijin">
+                <div class="row g-2">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img1.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img1.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img2.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img2.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img3.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img3.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img4.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img4.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img5.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img5.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img6.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img6.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img7.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img7.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img8.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img8.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img9.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img9.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% static 'main/images/shuijin/img10.jpg' %}" data-lightbox="shuijin" class="gallery-item">
+                            <img src="{% static 'main/images/shuijin/img10.jpg' %}" class="img-fluid rounded gallery-thumb" alt="水井村">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Lightbox Modal -->
+<div class="modal fade" id="lightboxModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="lightboxImg" src="" class="img-fluid" alt="" style="max-height:85vh;">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('lightboxImg').src = this.href;
+        new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+    });
+});
+</script>
+{% endblock %}

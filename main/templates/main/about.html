@@ -1,0 +1,179 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}關於風雲客棧 | 風雲客棧{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">關於風雲客棧</h1>
+        <p class="lead">水井村的過去、現在與未來</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">關於風雲客棧</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- About Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5 mb-5">
+            <div class="col-md-6">
+                <img src="{% static 'main/images/fengyun/about_main.jpg' %}" class="img-fluid rounded shadow" alt="風雲客棧">
+            </div>
+            <div class="col-md-6">
+                <h2 class="mb-4">風雲客棧是什麼？</h2>
+                <p>「風雲客棧」是位於雲林縣虎尾鎮水井村的一處社區據點，由國立虎尾科技大學
+                USR（大學社會責任）計畫師生與在地居民共同打造。</p>
+                <p>以「客棧」為意象，象徵此地歡迎四方來客，交流知識與情感；
+                以「風雲」為名，代表這裡正在醞釀改變、孕育希望。</p>
+                <p>這裡是社區活動中心、科技展示空間、文化傳承場域，
+                更是虎科大師生深入在地的重要橋梁。</p>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">發展歷程</h2>
+        </div>
+        <div class="timeline">
+            <div class="row g-0">
+                <div class="col-md-6 text-end pe-5 pb-4">
+                    <div class="timeline-content">
+                        <h5>2020 年</h5>
+                        <p class="text-muted">USR 計畫啟動，虎科大與水井社區建立合作關係，開始進行社區調查與需求評估</p>
+                    </div>
+                </div>
+                <div class="col-md-6 ps-5 pb-4 border-start">
+                    <div class="timeline-dot"></div>
+                </div>
+
+                <div class="col-md-6 text-end pe-5 pb-4 border-end">
+                    <div class="timeline-dot float-end"></div>
+                </div>
+                <div class="col-md-6 ps-5 pb-4">
+                    <div class="timeline-content">
+                        <h5>2021 年</h5>
+                        <p class="text-muted">風雲客棧據點正式成立，AIoT 智慧農業試驗計畫啟動，水質監測系統上線</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 text-end pe-5 pb-4">
+                    <div class="timeline-content">
+                        <h5>2022 年</h5>
+                        <p class="text-muted">OTTO 機器人進入社區，不蒜花體驗課程開辦，吸引外地學子走入水井村</p>
+                    </div>
+                </div>
+                <div class="col-md-6 ps-5 pb-4 border-start">
+                    <div class="timeline-dot"></div>
+                </div>
+
+                <div class="col-md-6 text-end pe-5 pb-4 border-end">
+                    <div class="timeline-dot float-end"></div>
+                </div>
+                <div class="col-md-6 ps-5 pb-4">
+                    <div class="timeline-content">
+                        <h5>2023 年</h5>
+                        <p class="text-muted">水井光光雕牆 AR 導覽完工，樹藝 AI 作品「水井三寶」獲全國競賽肯定</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 text-end pe-5">
+                    <div class="timeline-content">
+                        <h5>2024–2026 年</h5>
+                        <p class="text-muted">數位平台上線，整合在地故事與科技成果，持續擴展智慧村落建設</p>
+                    </div>
+                </div>
+                <div class="col-md-6 ps-5 border-start">
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">核心團隊</h2>
+            <p class="text-muted">虎科大師生攜手在地，共創美好未來</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-3 col-6 text-center">
+                <div class="team-card p-4">
+                    <div class="team-icon mb-3">&#128105;&#8205;&#127979;</div>
+                    <h6>計畫主持人</h6>
+                    <p class="text-muted small">負責整體計畫規劃與社區協調</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="team-card p-4">
+                    <div class="team-icon mb-3">&#128104;&#8205;&#128187;</div>
+                    <h6>技術團隊</h6>
+                    <p class="text-muted small">AIoT 系統開發與智慧設備維護</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="team-card p-4">
+                    <div class="team-icon mb-3">&#127775;</div>
+                    <h6>學生志工</h6>
+                    <p class="text-muted small">深入社區服務、課程帶領與文化記錄</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="team-card p-4">
+                    <div class="team-icon mb-3">&#127968;</div>
+                    <h6>在地夥伴</h6>
+                    <p class="text-muted small">水井村居民、農漁民共同參與計畫推動</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location Map Placeholder -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <h2 class="mb-4">如何前往</h2>
+                <ul class="list-unstyled location-list">
+                    <li class="mb-3">
+                        <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                        <strong>地址：</strong>653 雲林縣口湖鄉水井村
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-person-walking text-primary me-2"></i>
+                        <strong>步行：</strong>從口湖鄉市區步行前往水井村約 20–30 分鐘
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-bus-front-fill text-primary me-2"></i>
+                        <strong>大眾運輸：</strong>台西客運口湖站轉乘計程車約 5 分鐘
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-clock-fill text-primary me-2"></i>
+                        <strong>開放時間：</strong>週二至週日 09:00–17:00
+                    </li>
+                </ul>
+                <a href="{% url 'contact' %}" class="btn btn-primary mt-3">
+                    <i class="bi bi-telephone me-2"></i>預約參觀
+                </a>
+            </div>
+            <div class="col-md-6">
+                <div class="map-placeholder rounded shadow">
+                    <iframe
+                        src="https://maps.google.com/maps?q=23.5247323,120.1791357&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                        width="100%" height="350" style="border:0;border-radius:8px;"
+                        allowfullscreen="" loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}水井故事 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">水井故事</h1>
+        <p class="lead">聆聽在地人的努力與堅持，看見水井村的生命力</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">水井故事</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Intro -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <h2 class="mb-4">在地人的努力過程</h2>
+                <p class="lead">水井村的居民世代務農，面對農業轉型的挑戰，他們選擇與虎科大攜手，
+                共同探索科技農業與文化觀光的新出路。</p>
+                <p>這裡的每一個故事，都是真實的汗水與希望。從第一代農民的智慧傳承，
+                到年輕返鄉創業者的夢想，水井村正在書寫屬於自己的新篇章。</p>
+            </div>
+            <div class="col-md-6">
+                <div class="row g-2">
+                    <div class="col-6"><img src="{% static 'main/images/shuijin/img5.jpg' %}" class="img-fluid rounded" alt="水井村"></div>
+                    <div class="col-6"><img src="{% static 'main/images/shuijin/img6.jpg' %}" class="img-fluid rounded" alt="水井村"></div>
+                    <div class="col-6"><img src="{% static 'main/images/shuijin/img7.jpg' %}" class="img-fluid rounded" alt="水井村"></div>
+                    <div class="col-6"><img src="{% static 'main/images/shuijin/img8.jpg' %}" class="img-fluid rounded" alt="水井村"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Story Cards -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">故事集</h2>
+        </div>
+        <div class="row g-4">
+            <!-- Static story cards if no DB data -->
+            {% for story in page_obj %}
+            <div class="col-md-4">
+                <div class="card story-card h-100 shadow-sm border-0">
+                    {% if story.image %}
+                    <img src="{{ story.image.url }}" class="card-img-top" style="height:220px;object-fit:cover;" alt="{{ story.title }}">
+                    {% else %}
+                    <div class="story-img-placeholder d-flex align-items-center justify-content-center bg-light" style="height:220px;">
+                        <i class="bi bi-book display-4 text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ story.title }}</h5>
+                        <p class="card-text text-muted">{{ story.content|truncatechars:120 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex justify-content-between">
+                        <small class="text-muted"><i class="bi bi-person me-1"></i>{{ story.author }}</small>
+                        <a href="{% url 'story_detail' story.pk %}" class="btn btn-sm btn-primary">閱讀全文</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Default story cards when no DB data -->
+            <div class="col-md-4">
+                <div class="card story-card h-100 shadow-sm border-0">
+                    <img src="{% static 'main/images/shuijin/img9.jpg' %}" class="card-img-top" style="height:220px;object-fit:cover;" alt="農民故事">
+                    <div class="card-body">
+                        <h5 class="card-title">老農民的心聲：科技來了，土地更親了</h5>
+                        <p class="card-text text-muted">水井村許老農說：「一開始不相信機器能種田，
+                        後來看到感測器的數據，才知道科技能幫我們更了解這片土地。」</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <small class="text-muted"><i class="bi bi-person me-1"></i>許老農</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card story-card h-100 shadow-sm border-0">
+                    <img src="{% static 'main/images/shuijin/img10.jpg' %}" class="card-img-top" style="height:220px;object-fit:cover;" alt="返鄉青年">
+                    <div class="card-body">
+                        <h5 class="card-title">返鄉青年：我選擇留下來的理由</h5>
+                        <p class="card-text text-muted">大學念的是資訊工程，畢業後決定回到水井村，
+                        把技術帶回家，用 IoT 系統讓爸爸的魚塭變成智慧漁場。</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <small class="text-muted"><i class="bi bi-person me-1"></i>陳小明</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card story-card h-100 shadow-sm border-0">
+                    <img src="{% static 'main/images/fengyun/img8.jpg' %}" class="card-img-top" style="height:220px;object-fit:cover;" alt="社區媽媽">
+                    <div class="card-body">
+                        <h5 class="card-title">社區媽媽的不蒜花夢：用香味說故事</h5>
+                        <p class="card-text text-muted">不蒜花是水井的特色，社區媽媽們組成工作坊，
+                        把傳統農作變成文創商品，讓外地人帶走水井的記憶。</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <small class="text-muted"><i class="bi bi-person me-1"></i>社區媽媽工作坊</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+
+<!-- AR Intro Section -->
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <h2 class="mb-4">水井光光雕牆</h2>
+                <p>由虎科大師生與在地藝術家合作設計，以 AR 擴增實境技術打造的互動光雕裝置，
+                呈現水井村的歷史文化、農業景象與在地記憶。</p>
+                <p>訪客只需拿起手機掃描，即可看見光雕牆「活起來」——
+                田野中的稻浪、水井旁的老樹、孩子奔跑的身影，
+                都在虛實融合中重現。</p>
+                <a href="{% url 'aiot' %}" class="btn btn-outline-light mt-2">
+                    <i class="bi bi-phone me-2"></i>了解 AR 導覽
+                </a>
+            </div>
+            <div class="col-md-6 text-center">
+                <div class="ar-placeholder p-5 rounded border border-secondary">
+                    <div class="display-1 mb-3">&#128247;</div>
+                    <h5>AR 互動導覽說明</h5>
+                    <p class="text-secondary">掃描 QR Code 即可體驗水井光光雕牆 AR 導覽</p>
+                    <div class="qr-placeholder mt-3 mx-auto p-4 bg-white rounded" style="width:150px;height:150px;">
+                        <div class="text-dark text-center small pt-2">QR Code<br>（上線後生成）</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

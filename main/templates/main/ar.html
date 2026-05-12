@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AR 互動體驗 | 風雲客棧</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- A-Frame 1.4.0 (local) — must be FIRST -->
+    <script src="{% static 'main/js/aframe.min.js' %}"></script>
+    <!-- MindAR face (local) — registers A-Frame components -->
+    <script src="{% static 'main/js/mindar-face-aframe.prod.js' %}"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; overflow: hidden; font-family: sans-serif; }
+
+        /* A-Frame 全螢幕 */
+        a-scene { width: 100vw; height: 100vh; }
+
+        /* Three.js overlay canvas */
+        #three-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 50;
+        }
+
+        /* 頂部導覽 */
+        #navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            background: linear-gradient(90deg,rgba(10,15,40,0.85),rgba(0,50,100,0.8));
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(240,192,64,0.4);
+        }
+        #navbar .brand { color: #F0C040; font-weight: 700; font-size: 1rem; }
+        #navbar .brand small { color: #aaa; font-size: 0.65rem; display: block; }
+        #navbar a { color: #fff; text-decoration: none; font-size: 0.85rem; }
+
+        /* 科技標籤 */
+        #tags {
+            position: fixed; top: 52px; right: 10px; z-index: 200;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .tag {
+            background: rgba(0,40,100,0.8);
+            border: 1px solid #2b6cb0;
+            color: #90cdf4; font-size: 0.68rem;
+            border-radius: 6px; padding: 3px 8px;
+        }
+
+        /* 底部提示 */
+        #hint {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 200;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(240,192,64,0.5);
+            color: #F0C040; font-size: 0.85rem;
+            border-radius: 24px; padding: 8px 20px;
+            text-align: center; white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 頂部導覽 -->
+<div id="navbar">
+    <div class="brand">
+        &#9960; 風雲客棧
+        <small>水井村 AR 互動體驗</small>
+    </div>
+    <a href="{% url 'aiot' %}">
+        <i class="bi bi-arrow-left-circle me-1"></i>返回
+    </a>
+</div>
+
+<!-- 科技版本標籤 -->
+<div id="tags">
+    <div class="tag">MindAR 1.2.5</div>
+    <div class="tag">A-Frame 1.4.0</div>
+    <div class="tag">Three.js r147</div>
+</div>
+
+<!-- Three.js 粒子背景 overlay -->
+<canvas id="three-canvas"></canvas>
+
+<!-- ═══════════════════════════════════════════
+     A-Frame + MindAR Face AR Scene
+     最精簡設定，避免 color-space/renderer 衝突
+     ═══════════════════════════════════════════ -->
+<a-scene
+    mindar-face
+    embedded
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-camera active="false" position="0 0 0"></a-camera>
+
+    <!-- 鼻樑中心 (168)：大紅球，最容易確認效果 -->
+    <a-entity mindar-face-target="anchorIndex: 168">
+        <a-sphere radius="0.08" color="#FF4444" opacity="0.95"
+            animation="property: scale; to: 1.4 1.4 1.4; dir: alternate; loop: true; dur: 700; easing: easeInOutSine">
+        </a-sphere>
+    </a-entity>
+
+    <!-- 前額 (10)：金色旋轉環 -->
+    <a-entity mindar-face-target="anchorIndex: 10">
+        <a-torus radius="0.12" radius-tubular="0.012"
+            color="#F0C040" opacity="0.9"
+            position="0 0.08 0"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 2500; easing: linear">
+        </a-torus>
+    </a-entity>
+
+    <!-- 左臉頰 (234)：綠球 -->
+    <a-entity mindar-face-target="anchorIndex: 234">
+        <a-sphere radius="0.06" color="#38a169" opacity="0.9"
+            animation="property: position; to: -0.02 0.05 0; dir: alternate; loop: true; dur: 1000; easing: easeInOutSine">
+        </a-sphere>
+    </a-entity>
+
+    <!-- 右臉頰 (454)：綠球 -->
+    <a-entity mindar-face-target="anchorIndex: 454">
+        <a-sphere radius="0.06" color="#38a169" opacity="0.9"
+            animation="property: position; to: 0.02 0.05 0; dir: alternate; loop: true; dur: 1000; easing: easeInOutSine">
+        </a-sphere>
+    </a-entity>
+
+    <!-- 下巴 (152)：藍色旋轉方塊 -->
+    <a-entity mindar-face-target="anchorIndex: 152">
+        <a-box width="0.1" height="0.1" depth="0.1"
+            color="#1a6faf" opacity="0.9"
+            position="0 -0.05 0"
+            animation="property: rotation; to: 0 360 360; loop: true; dur: 3000; easing: linear">
+        </a-box>
+    </a-entity>
+
+    <!-- 左耳 (127)：水滴（藍錐）-->
+    <a-entity mindar-face-target="anchorIndex: 127">
+        <a-cone radius-bottom="0.035" radius-top="0" height="0.08"
+            color="#63b3ed" opacity="0.9"
+            position="-0.06 0 0" rotation="0 0 180"
+            animation="property: position; to: -0.06 0.04 0; dir: alternate; loop: true; dur: 1000">
+        </a-cone>
+    </a-entity>
+
+    <!-- 右耳 (356)：水滴（藍錐）-->
+    <a-entity mindar-face-target="anchorIndex: 356">
+        <a-cone radius-bottom="0.035" radius-top="0" height="0.08"
+            color="#63b3ed" opacity="0.9"
+            position="0.06 0 0" rotation="0 0 180"
+            animation="property: position; to: 0.06 0.04 0; dir: alternate; loop: true; dur: 1000">
+        </a-cone>
+    </a-entity>
+
+</a-scene>
+
+<!-- 底部提示 -->
+<div id="hint">
+    <i class="bi bi-person-bounding-box me-1"></i>請將鏡頭對準臉部
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// Three.js 粒子背景 — 使用 A-Frame 暴露的 window.THREE
+// ═══════════════════════════════════════════
+window.addEventListener('load', function () {
+    const T = window.THREE;
+    if (!T) { console.warn('[AR] THREE not available'); return; }
+    console.log('[AR] THREE r' + T.REVISION + ' ready');
+
+    const canvas = document.getElementById('three-canvas');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const renderer = new T.WebGLRenderer({ canvas, alpha: true, antialias: false });
+    renderer.setSize(canvas.width, canvas.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene  = new T.Scene();
+    const cam    = new T.PerspectiveCamera(60, canvas.width / canvas.height, 0.1, 100);
+    cam.position.z = 5;
+
+    window.addEventListener('resize', () => {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        cam.aspect = canvas.width / canvas.height;
+        cam.updateProjectionMatrix();
+        renderer.setSize(canvas.width, canvas.height);
+    });
+
+    // 建立粒子群
+    function makeParticles(n, color, range, size) {
+        const geo = new T.BufferGeometry();
+        const pos = new Float32Array(n * 3);
+        const vel = [];
+        for (let i = 0; i < n; i++) {
+            pos[i*3]   = (Math.random() - 0.5) * range;
+            pos[i*3+1] = (Math.random() - 0.5) * range;
+            pos[i*3+2] = (Math.random() - 0.5) * 2;
+            vel.push((Math.random() - 0.5) * 0.007, (Math.random() - 0.5) * 0.007);
+        }
+        geo.setAttribute('position', new T.BufferAttribute(pos, 3));
+        const mat = new T.PointsMaterial({ color, size, transparent: true, opacity: 0.5 });
+        return { pts: new T.Points(geo, mat), vel, n };
+    }
+
+    const gold = makeParticles(200, 0xF0C040, 12, 0.07);
+    const blue = makeParticles(120, 0x63b3ed, 10, 0.05);
+    scene.add(gold.pts, blue.pts);
+
+    (function tick() {
+        requestAnimationFrame(tick);
+        [gold, blue].forEach(p => {
+            const a = p.pts.geometry.attributes.position.array;
+            for (let i = 0; i < p.n; i++) {
+                a[i*3]   += p.vel[i*2];
+                a[i*3+1] += p.vel[i*2+1];
+                if (Math.abs(a[i*3])   > 6) p.vel[i*2]   *= -1;
+                if (Math.abs(a[i*3+1]) > 6) p.vel[i*2+1] *= -1;
+            }
+            p.pts.geometry.attributes.position.needsUpdate = true;
+        });
+        gold.pts.rotation.z += 0.0006;
+        blue.pts.rotation.z -= 0.0004;
+        renderer.render(scene, cam);
+    })();
+});
+
+// 診斷
+console.log('[AR] AFRAME:', typeof AFRAME !== 'undefined' ? 'OK v' + AFRAME.version : 'MISSING');
+</script>
+</body>
+</html>

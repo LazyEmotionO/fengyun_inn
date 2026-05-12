@@ -1,0 +1,94 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ event.title }} | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-6 fw-bold">{{ event.title }}</h1>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'event_list' %}" class="text-white">活動資訊</a></li>
+                <li class="breadcrumb-item active text-white-50">{{ event.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-md-8">
+                {% if event.image %}
+                <img src="{{ event.image.url }}" class="img-fluid rounded shadow mb-4" alt="{{ event.title }}">
+                {% endif %}
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge category-badge fs-6">{{ event.get_category_display }}</span>
+                            {% if event.is_upcoming %}
+                            <span class="badge bg-success fs-6">即將舉行</span>
+                            {% else %}
+                            <span class="badge bg-secondary fs-6">已結束</span>
+                            {% endif %}
+                        </div>
+                        <h2 class="mb-4">{{ event.title }}</h2>
+                        <div class="event-meta mb-4">
+                            <span class="me-4"><i class="bi bi-calendar-event text-primary me-2"></i>{{ event.date }}</span>
+                            <span class="me-4"><i class="bi bi-geo-alt text-primary me-2"></i>{{ event.location }}</span>
+                            <span><i class="bi bi-tag text-primary me-2"></i>{{ event.get_category_display }}</span>
+                        </div>
+                        <div class="event-description">
+                            {{ event.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'event_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>返回活動列表
+                    </a>
+                    <a href="{% url 'contact' %}" class="btn btn-primary ms-2">
+                        <i class="bi bi-calendar-check me-2"></i>我要報名
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <!-- Event Info Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>活動資訊</h6>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-5 text-muted">日期</dt>
+                            <dd class="col-7">{{ event.date }}</dd>
+                            <dt class="col-5 text-muted">地點</dt>
+                            <dd class="col-7">{{ event.location }}</dd>
+                            <dt class="col-5 text-muted">類別</dt>
+                            <dd class="col-7">{{ event.get_category_display }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <!-- Related Events -->
+                {% if related_events %}
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h6 class="mb-0">相關活動</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for rel in related_events %}
+                        <a href="{% url 'event_detail' rel.pk %}" class="list-group-item list-group-item-action">
+                            <div class="fw-bold small">{{ rel.title }}</div>
+                            <small class="text-muted">{{ rel.date }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
