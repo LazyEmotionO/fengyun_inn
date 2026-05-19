@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 
+from django.core.exceptions import FieldError
 from django.db.models import Avg, Q
 from django.utils import timezone
 
@@ -216,11 +217,50 @@ def get_latest_water_quality(pond_name: str) -> dict:
     return {
         "pond": pond.name,
         "species": pond.species,
-        "measured_at": latest.measured_at.isoformat(),
+        "measured_at": timezone.localtime(latest.measured_at).isoformat(),
         "temperature_c": latest.temperature,
         "ph": latest.ph,
         "dissolved_oxygen_mg_l": latest.dissolved_oxygen,
         "salinity_ppt": latest.salinity,
+    }
+
+
+def get_latest_pond_reading(pond_code: str) -> dict:
+    pond = None
+    pond_fields = {field.name for field in Pond._meta.get_fields()}
+    if "pond_code" in pond_fields:
+        pond = Pond.objects.filter(pond_code=pond_code).first()
+    elif "code" in pond_fields:
+        pond = Pond.objects.filter(code=pond_code).first()
+
+    if pond is None:
+        pond = _find_pond(pond_code)
+    if pond is None:
+        return _pond_not_found(pond_code)
+
+    try:
+        latest = pond.readings.order_by("-updated_at").first()
+    except FieldError:
+        latest = pond.readings.order_by("-measured_at").first()
+
+    if latest is None:
+        return {"error": f"{pond.name}沒有任何讀數"}
+
+    measured_at = timezone.localtime(latest.measured_at) if latest.measured_at else None
+    return {
+        "measured_at": measured_at.isoformat() if measured_at else None,
+        "water_temperature_c": getattr(
+            latest, "water_temperature_c", getattr(latest, "temperature", None)
+        ),
+        "ph": latest.ph,
+        "dissolved_oxygen_mg_l": getattr(
+            latest,
+            "dissolved_oxygen_mg_l",
+            getattr(latest, "dissolved_oxygen", None),
+        ),
+        "salinity_ppt": getattr(latest, "salinity_ppt", getattr(latest, "salinity", None)),
+        "status": getattr(latest, "status", None),
+        "alert_message": getattr(latest, "alert_message", None),
     }
 
 
@@ -430,8 +470,25 @@ TOOL_SCHEMAS = [
     {
         "type": "function",
         "function": {
+            "name": "get_latest_pond_reading",
+            "description": "Get the PondReading with the greatest updated_at for a pond. 當使用者問『最新』『現在』『目前』『最近一筆』時用這個，不要用 get_water_quality_history 自己挑。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "pond_code": {
+                        "type": "string",
+                        "description": "Pond code. If code is unavailable, pond name or id can be used.",
+                    }
+                },
+                "required": ["pond_code"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_latest_water_quality",
-            "description": "Get the latest water quality reading for a pond.",
+            "description": "Get a legacy latest water quality summary for a pond. For questions asking 『最新』『現在』『目前』『最近一筆』, use get_latest_pond_reading instead.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -515,6 +572,7 @@ _TOOL_REGISTRY = {
     "list_aiot_projects": list_aiot_projects,
     "list_ponds": list_ponds,
     "get_latest_water_quality": get_latest_water_quality,
+    "get_latest_pond_reading": get_latest_pond_reading,
     "get_average_do": get_average_do,
     "get_water_quality_history": get_water_quality_history,
     "check_thresholds": check_thresholds,
