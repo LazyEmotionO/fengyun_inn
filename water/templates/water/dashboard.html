@@ -1,0 +1,174 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}智慧養殖 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">智慧養殖水質監測</h1>
+        <p class="lead">TASMOTA 感測模組即時回傳水溫、鹽度、pH、溶氧，AI 自動分析並提示異常</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item active text-white-50">智慧養殖</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center g-4 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-number text-primary">{{ total_ponds }}</div>
+                <div class="stat-label text-muted">監測池數</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-number text-success">{{ normal_count }}</div>
+                <div class="stat-label text-muted">狀態正常</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-number text-danger">{{ alert_count }}</div>
+                <div class="stat-label text-muted">異常警示</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-number" style="font-size:1.3rem;">{{ updated_at|date:"m/d H:i" }}</div>
+                <div class="stat-label text-muted">資料更新時間</div>
+            </div>
+        </div>
+
+        {% if alert_count > 0 %}
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+            <div>偵測到 <strong>{{ alert_count }}</strong> 個池塘水質異常，請點擊下方卡片查看詳細分析與建議。</div>
+        </div>
+        {% else %}
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+            <div>目前所有池塘水質皆在正常範圍內，系統運作正常。</div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Pond Cards -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">各池塘即時狀態</h2>
+            <p class="text-muted">點擊池塘卡片查看歷史趨勢、統計分析與異常紀錄</p>
+        </div>
+        <div class="row g-4">
+            {% for item in pond_data %}
+            <div class="col-md-4">
+                <a href="{% url 'water:pond_detail' item.pond.id %}" class="text-decoration-none text-reset">
+                    <div class="card h-100 pond-card {% if item.alerts %}pond-card-alert{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ item.pond.name }}</h5>
+                                {% if not item.latest %}
+                                <span class="badge bg-secondary">無資料</span>
+                                {% elif item.alerts %}
+                                <span class="badge bg-danger">異常</span>
+                                {% else %}
+                                <span class="badge bg-success">正常</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-muted small mb-3">{{ item.pond.species }} · {{ item.pond.description }}</p>
+
+                            {% if item.latest %}
+                            <div class="row text-center g-2 mb-3">
+                                {% for card in item.latest.reading_cards %}
+                                <div class="col-3">
+                                    <div class="reading-value {% if card.alert %}text-danger{% endif %}">{{ card.value }}</div>
+                                    <div class="reading-label">{{ card.label }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-muted small mb-2">
+                                <i class="bi bi-clock-history me-1"></i>更新於 {{ item.latest.measured_at|date:"m/d H:i" }}
+                            </div>
+                            {% if item.alerts %}
+                            <ul class="list-unstyled small text-danger mb-0">
+                                {% for alert in item.alerts %}
+                                <li><i class="bi bi-exclamation-circle me-1"></i>{{ alert.message }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="small text-success mb-0"><i class="bi bi-check-circle me-1"></i>各項指標皆在正常範圍</p>
+                            {% endif %}
+                            {% else %}
+                            <p class="text-muted small mb-0">尚無感測資料</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-primary small">查看詳細分析 <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Safe Range Reference -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">水質安全範圍標準</h2>
+            <p class="text-muted">系統依此標準自動判斷數值是否異常並發出提示</p>
+        </div>
+        <div class="row g-4 text-center">
+            {% for field, rule in thresholds.items %}
+            <div class="col-md-3 col-6">
+                <div class="reading-card h-100 p-3">
+                    <div class="reading-icon mb-2"><i class="bi {{ rule.icon }}"></i></div>
+                    <h6 class="mb-1">{{ rule.label }}</h6>
+                    <div class="reading-range">正常範圍：{% if rule.min is not None and rule.max is not None %}{{ rule.min }}–{{ rule.max }}{{ rule.unit }}{% elif rule.min is not None %}≥ {{ rule.min }}{{ rule.unit }}{% else %}≤ {{ rule.max }}{{ rule.unit }}{% endif %}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- System Architecture -->
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title text-white">系統架構說明</h2>
+            <p class="text-secondary">智慧養殖水質監測系統的資料流程</p>
+        </div>
+        <div class="row g-4 text-center mb-4">
+            <div class="col-md-3 col-6">
+                <div class="aiot-icon mb-2"><i class="bi bi-cpu"></i></div>
+                <h6>TASMOTA 感測模組</h6>
+                <p class="text-secondary small">水溫、鹽度、pH、溶氧感測器，透過 TASMOTA 韌體連上 Wi-Fi</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="aiot-icon mb-2"><i class="bi bi-cloud-arrow-up"></i></div>
+                <h6>HTTP 上傳</h6>
+                <p class="text-secondary small">感測模組定時以 HTTP 請求將讀值上傳至伺服器</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="aiot-icon mb-2"><i class="bi bi-database"></i></div>
+                <h6>資料庫紀錄</h6>
+                <p class="text-secondary small">寫入資料庫，累積歷史紀錄供統計與趨勢分析</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="aiot-icon mb-2"><i class="bi bi-robot"></i></div>
+                <h6>AI 分析與警示</h6>
+                <p class="text-secondary small">自動比對安全範圍，異常即時提示，並可透過 AI 助理查詢</p>
+            </div>
+        </div>
+        <div class="alert alert-warning small mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>示範說明：</strong>目前頁面顯示的數據為模擬資料（由系統 <code>seed</code> 指令產生），尚未連接實體 TASMOTA 感測器。
+            本頁面的統計、趨勢分析與異常提示功能皆已完整實作，待硬體部署完成後，只需將感測器讀值寫入資料庫即可即時啟用。
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ pond.name }} 水質分析 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">{{ pond.name }}</h1>
+        <p class="lead">{{ pond.species }}{% if pond.description %} · {{ pond.description }}{% endif %}</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'water:dashboard' %}" class="text-white">智慧養殖</a></li>
+                <li class="breadcrumb-item active text-white-50">{{ pond.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+
+        <!-- Alert Banner -->
+        {% if not latest %}
+        <div class="alert alert-secondary">
+            <i class="bi bi-info-circle me-2"></i>此池塘尚無感測資料。
+        </div>
+        {% elif alerts %}
+        <div class="alert alert-danger">
+            <h6 class="alert-heading mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>偵測到水質異常</h6>
+            <ul class="mb-0">
+                {% for alert in alerts %}
+                <li>{{ alert.message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill me-2"></i>各項水質指標皆在正常範圍，狀況良好。
+        </div>
+        {% endif %}
+
+        <!-- Latest Readings -->
+        {% if latest %}
+        <div class="row g-3 mb-2">
+            {% for card in latest.reading_cards %}
+            <div class="col-md-3 col-6">
+                <div class="reading-card text-center p-3 h-100 {% if card.alert.level == 'low' %}alert-low{% elif card.alert.level == 'high' %}alert-high{% endif %}">
+                    <div class="reading-icon mb-2"><i class="bi {{ card.icon }}"></i></div>
+                    <div class="reading-value">{{ card.value }}<small class="fs-6 ms-1">{{ card.unit }}</small></div>
+                    <div class="reading-label">{{ card.label }}</div>
+                    <div class="reading-range">正常範圍 {{ card.range_text }}</div>
+                    {% if card.alert %}
+                    <div class="small text-danger mt-1">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        {% if card.alert.level == 'low' %}過低{% else %}過高{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="text-muted small mt-2 mb-5">
+            <i class="bi bi-clock-history me-1"></i>最新讀值時間：{{ latest.measured_at|date:"Y/m/d H:i" }}
+        </p>
+        {% endif %}
+
+        <!-- Period Filter -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+            <h2 class="section-title mb-2">統計與趨勢分析</h2>
+            <div class="btn-group" role="group" aria-label="統計區間">
+                {% for option in day_options %}
+                <a href="?days={{ option }}" class="btn btn-sm {% if option == days %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    近 {{ option }} 天
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if reading_count %}
+        <p class="text-muted">
+            近 {{ days }} 天共 <strong>{{ reading_count }}</strong> 筆感測紀錄，
+            其中 <strong class="{% if anomaly_count %}text-danger{% else %}text-success{% endif %}">{{ anomaly_count }}</strong> 筆超出安全範圍
+            （異常率 {{ anomaly_pct }}%）。
+        </p>
+
+        <!-- Stats Table -->
+        <div class="table-responsive mb-5">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>指標</th>
+                        <th class="text-center">平均</th>
+                        <th class="text-center">最小</th>
+                        <th class="text-center">最大</th>
+                        <th class="text-center">安全範圍</th>
+                        <th>分析</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in metric_rows %}
+                    <tr>
+                        <td><i class="bi {{ row.icon }} me-2 text-primary"></i>{{ row.label }}{% if row.unit %} ({{ row.unit }}){% endif %}</td>
+                        <td class="text-center">{{ row.avg|floatformat:1 }}</td>
+                        <td class="text-center">{{ row.min|floatformat:1 }}</td>
+                        <td class="text-center">{{ row.max|floatformat:1 }}</td>
+                        <td class="text-center text-muted">{{ row.range_text }}</td>
+                        <td>
+                            {% if row.avg_status == 'normal' %}
+                            <span class="badge bg-success me-1">正常</span>
+                            {% elif row.avg_status == 'low' %}
+                            <span class="badge bg-danger me-1">偏低</span>
+                            {% elif row.avg_status == 'high' %}
+                            <span class="badge bg-danger me-1">偏高</span>
+                            {% else %}
+                            <span class="badge bg-secondary me-1">無資料</span>
+                            {% endif %}
+                            <span class="small text-muted">{{ row.analysis }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-thermometer-half me-2 text-primary"></i>水溫趨勢</h6>
+                        <div style="height: 260px;"><canvas id="chartTemperature"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-droplet-half me-2 text-primary"></i>pH 值趨勢</h6>
+                        <div style="height: 260px;"><canvas id="chartPh"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-wind me-2 text-primary"></i>溶氧趨勢</h6>
+                        <div style="height: 260px;"><canvas id="chartDO"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-water me-2 text-primary"></i>鹽度趨勢</h6>
+                        <div style="height: 260px;"><canvas id="chartSalinity"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-secondary">
+            <i class="bi bi-info-circle me-2"></i>所選區間內尚無感測資料。
+        </div>
+        {% endif %}
+
+        <!-- Demo Notice -->
+        <div class="alert alert-warning small mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>示範說明：</strong>本頁數據為模擬資料，尚未連接實體 TASMOTA 感測器；
+            <a href="{% url 'water:dashboard' %}">回到智慧養殖總覽</a>。
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if reading_count %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+(function () {
+    const labels = {{ chart_labels_json|safe }};
+
+    function buildChart(canvasId, label, data, color, minVal, maxVal) {
+        const datasets = [{
+            label: label,
+            data: data,
+            borderColor: color,
+            backgroundColor: color + '22',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 2,
+        }];
+        if (minVal !== null) {
+            datasets.push({
+                label: '安全下限',
+                data: labels.map(() => minVal),
+                borderColor: '#dc3545',
+                borderDash: [6, 4],
+                pointRadius: 0,
+                borderWidth: 1,
+            });
+        }
+        if (maxVal !== null) {
+            datasets.push({
+                label: '安全上限',
+                data: labels.map(() => maxVal),
+                borderColor: '#dc3545',
+                borderDash: [6, 4],
+                pointRadius: 0,
+                borderWidth: 1,
+            });
+        }
+        new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true, labels: { boxWidth: 12, font: { size: 11 } } } },
+                scales: { x: { ticks: { maxTicksLimit: 8, font: { size: 10 } } } },
+            }
+        });
+    }
+
+    buildChart(
+        'chartTemperature', '水溫 (°C)', {{ chart_temperature_json|safe }}, '#0f3460',
+        {% if thresholds.temperature.min is not None %}{{ thresholds.temperature.min }}{% else %}null{% endif %},
+        {% if thresholds.temperature.max is not None %}{{ thresholds.temperature.max }}{% else %}null{% endif %}
+    );
+    buildChart(
+        'chartPh', 'pH 值', {{ chart_ph_json|safe }}, '#f0c040',
+        {% if thresholds.ph.min is not None %}{{ thresholds.ph.min }}{% else %}null{% endif %},
+        {% if thresholds.ph.max is not None %}{{ thresholds.ph.max }}{% else %}null{% endif %}
+    );
+    buildChart(
+        'chartDO', '溶氧 (mg/L)', {{ chart_dissolved_oxygen_json|safe }}, '#28a745',
+        {% if thresholds.dissolved_oxygen.min is not None %}{{ thresholds.dissolved_oxygen.min }}{% else %}null{% endif %},
+        {% if thresholds.dissolved_oxygen.max is not None %}{{ thresholds.dissolved_oxygen.max }}{% else %}null{% endif %}
+    );
+    buildChart(
+        'chartSalinity', '鹽度 (ppt)', {{ chart_salinity_json|safe }}, '#0dcaf0',
+        {% if thresholds.salinity.min is not None %}{{ thresholds.salinity.min }}{% else %}null{% endif %},
+        {% if thresholds.salinity.max is not None %}{{ thresholds.salinity.max }}{% else %}null{% endif %}
+    );
+})();
+</script>
+{% endif %}
+{% endblock %}
