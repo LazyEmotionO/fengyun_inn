@@ -766,3 +766,21 @@ h1, h2, h3, h4, h5, .navbar-brand {
 .hs-label  { font-size: 0.5rem; line-height: 1.2; }
 .hs-lg-num { font-size: 1.5rem; font-weight: 700; line-height: 1; }
 .hs-lg-label { font-size: 0.6rem; line-height: 1.4; }
+
+/* --- 留言區 --- */
+.comment-board {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+.comment-textarea { resize: vertical; }
+.comment-avatar { font-size: 1.8rem; color: #adb5bd; flex-shrink: 0; }
+.comment-image {
+    max-width: 220px;
+    max-height: 220px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    object-fit: cover;
+}
+.comment-list { max-height: 480px; overflow-y: auto; }

@@ -423,6 +423,7 @@
     let gameStarted = false;
     let fishes = [];
     let pendingTimeouts = [];
+    let sessionToken = null;
 
     function areaW() { return gameArea.offsetWidth; }
     function areaH() { return gameArea.offsetHeight; }
@@ -668,7 +669,7 @@
         elResult.classList.add('show');
         elRestart.style.display = 'block';
 
-        if (IS_AUTHENTICATED && score > 0) {
+        if (IS_AUTHENTICATED && score > 0 && sessionToken) {
             elSubmit.textContent = '分數累積中...';
             fetch('{% url "ar_submit_score" %}', {
                 method: 'POST',
@@ -676,10 +677,14 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': CSRF_TOKEN,
                 },
-                body: JSON.stringify({ score: score }),
+                body: JSON.stringify({ score: score, token: sessionToken }),
             })
             .then(res => res.json())
             .then(data => {
+                if (data.error) {
+                    elSubmit.textContent = '分數累積失敗，請重新整理頁面後再試';
+                    return;
+                }
                 elSubmit.textContent = `已累積 +${data.added} 分，目前累積總分 ${data.total}`;
                 if (elCumulative) elCumulative.textContent = data.total;
             })
@@ -689,6 +694,7 @@
         } else if (!IS_AUTHENTICATED) {
             elSubmit.textContent = '登入後即可將分數累積至排行榜';
         }
+        sessionToken = null;
     }
 
     window.startGame = function () {
@@ -724,6 +730,17 @@
         running = true;
         tick();
         startTimer();
+
+        sessionToken = null;
+        if (IS_AUTHENTICATED) {
+            fetch('{% url "ar_start_session" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF_TOKEN },
+            })
+            .then(res => res.json())
+            .then(data => { sessionToken = data.token || null; })
+            .catch(() => { sessionToken = null; });
+        }
     };
 
     function closeRules() {

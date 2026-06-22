@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'main',
     'chat',
     'water',
+    'comments',
 ]
 
 MIDDLEWARE = [

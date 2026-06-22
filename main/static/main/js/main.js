@@ -55,6 +55,54 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
 
+    // 留言區：支援選擇檔案上傳，以及在輸入框內 Ctrl+V 貼上剪貼簿截圖
+    document.querySelectorAll('.comment-form').forEach(form => {
+        const textarea = form.querySelector('.comment-textarea');
+        const fileInput = form.querySelector('.comment-image-input');
+        const preview = form.querySelector('.comment-image-preview');
+        const removeBtn = form.querySelector('.comment-image-remove');
+        if (!textarea || !fileInput) return;
+
+        const showPreview = (file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'inline-block';
+                removeBtn.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        };
+
+        textarea.addEventListener('paste', (e) => {
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
+            for (const item of items) {
+                if (item.type && item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (!file) continue;
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    showPreview(file);
+                    e.preventDefault();
+                    break;
+                }
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) showPreview(fileInput.files[0]);
+        });
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                preview.style.display = 'none';
+                removeBtn.style.display = 'none';
+            });
+        }
+    });
+
     const chatbot = document.getElementById('chatbotWidget');
     if (chatbot) {
         const panel = document.getElementById('chatbotPanel');

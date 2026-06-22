@@ -9,6 +9,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg, Count, Max, Min
 from django.utils import timezone
 
+from comments.models import Comment
+
 from .forms import PondThresholdForm
 from .models import THRESHOLDS, Pond, SensorReading, threshold_range_text
 
@@ -65,6 +67,7 @@ def dashboard(request):
         "alert_count": alert_count,
         "updated_at": timezone.now(),
         "is_admin_view": is_admin_view,
+        "comments": Comment.objects.filter(board="water").select_related("user__profile")[:50],
     }
     return render(request, "water/dashboard.html", context)
 

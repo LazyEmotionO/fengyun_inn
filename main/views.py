@@ -1,4 +1,6 @@
 import json
+import secrets
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -6,13 +8,21 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.db.models import F, Q
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from accounts.models import Profile
+from comments.models import Comment
 from .models import Event, Story, NewsItem, AIoTProject
 from .forms import ContactForm
 
-AR_MAX_SCORE_PER_SESSION = 300
+# AR 釣魚遊戲：分數送出前必須先取得 ar_start_session 發出的一次性 token，
+# 且需經過至少 GAME_DURATION 的真實時間，避免使用者直接呼叫 API 偽造分數。
+AR_SESSION_KEY = 'ar_game_token'
+AR_SESSION_TIME_KEY = 'ar_game_started_at'
+AR_MIN_ELAPSED_SECONDS = 55
+AR_MAX_ELAPSED_SECONDS = 600
+AR_MAX_SCORE_PER_SESSION = 150
 
 
 def home(request):
@@ -127,12 +137,37 @@ def ar(request):
 
 @require_POST
 @login_required
+def ar_start_session(request):
+    """遊戲實際開始時呼叫，發出一次性 token 並記錄開始時間。"""
+    token = secrets.token_hex(16)
+    request.session[AR_SESSION_KEY] = token
+    request.session[AR_SESSION_TIME_KEY] = timezone.now().isoformat()
+    return JsonResponse({'token': token})
+
+
+@require_POST
+@login_required
 def ar_submit_score(request):
     try:
         data = json.loads(request.body)
         score = int(data.get('score', 0))
+        token = str(data.get('token', ''))
     except (ValueError, TypeError, json.JSONDecodeError):
-        return JsonResponse({'error': 'invalid score'}, status=400)
+        return JsonResponse({'error': 'invalid request'}, status=400)
+
+    session_token = request.session.get(AR_SESSION_KEY)
+    started_at_raw = request.session.get(AR_SESSION_TIME_KEY)
+
+    # token 用過即焚，防止同一場遊戲被重複送出
+    request.session.pop(AR_SESSION_KEY, None)
+    request.session.pop(AR_SESSION_TIME_KEY, None)
+
+    if not session_token or not started_at_raw or token != session_token:
+        return JsonResponse({'error': 'invalid or expired session'}, status=400)
+
+    elapsed = (timezone.now() - datetime.fromisoformat(started_at_raw)).total_seconds()
+    if elapsed < AR_MIN_ELAPSED_SECONDS or elapsed > AR_MAX_ELAPSED_SECONDS:
+        return JsonResponse({'error': 'session expired or too short'}, status=400)
 
     score = max(0, min(score, AR_MAX_SCORE_PER_SESSION))
 
@@ -144,16 +179,23 @@ def ar_submit_score(request):
 
 
 def ar_leaderboard(request):
-    top_profiles = (
-        Profile.objects.filter(ar_score__gt=0)
-        .select_related('user')
-        .order_by('-ar_score')[:50]
-    )
+    is_admin_view = request.user.is_staff
+    if is_admin_view:
+        # 管理員：列出所有帳號（含尚未得分的），方便管理與調整分數
+        top_profiles = Profile.objects.select_related('user').order_by('-ar_score', 'user__username')
+    else:
+        top_profiles = (
+            Profile.objects.filter(ar_score__gt=0)
+            .select_related('user')
+            .order_by('-ar_score')[:50]
+        )
     my_profile = None
     if request.user.is_authenticated:
         my_profile, _ = Profile.objects.get_or_create(user=request.user)
     context = {
         'top_profiles': top_profiles,
         'my_profile': my_profile,
+        'is_admin_view': is_admin_view,
+        'comments': Comment.objects.filter(board='ar').select_related('user__profile')[:50],
     }
     return render(request, 'main/ar_leaderboard.html', context)

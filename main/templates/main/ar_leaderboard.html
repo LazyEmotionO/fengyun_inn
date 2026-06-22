@@ -19,9 +19,16 @@
 </div>
 
 <section class="py-5">
-    <div class="container" style="max-width: 680px;">
+    <div class="container" style="max-width: {% if is_admin_view %}820{% else %}680{% endif %}px;">
 
-        {% if my_profile %}
+        {% if is_admin_view %}
+        <div class="alert alert-secondary d-flex justify-content-between align-items-center mb-4">
+            <span><i class="bi bi-shield-lock me-2"></i>管理員視角：顯示所有帳號（含尚未得分）</span>
+            <a href="/admin/accounts/profile/" class="btn btn-sm btn-outline-dark" target="_blank">
+                <i class="bi bi-pencil-square me-1"></i>到後台批量管理
+            </a>
+        </div>
+        {% elif my_profile %}
         <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
             <span><i class="bi bi-person-circle me-2"></i>{{ my_profile.nickname }} 目前累積總分</span>
             <strong class="fs-5">{{ my_profile.ar_score }}</strong>
@@ -41,7 +48,9 @@
                     <tr>
                         <th class="text-center" style="width:64px;">名次</th>
                         <th>暱稱</th>
+                        {% if is_admin_view %}<th>帳號</th>{% endif %}
                         <th class="text-end">累積總分</th>
+                        {% if is_admin_view %}<th class="text-end" style="width:90px;">操作</th>{% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +64,15 @@
                             {% endif %}
                         </td>
                         <td>{{ profile.nickname|default:profile.user.username }}</td>
+                        {% if is_admin_view %}<td class="text-muted">{{ profile.user.username }}</td>{% endif %}
                         <td class="text-end fw-bold">{{ profile.ar_score }}</td>
+                        {% if is_admin_view %}
+                        <td class="text-end">
+                            <a href="/admin/accounts/profile/{{ profile.pk }}/change/" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -67,11 +84,13 @@
         </div>
         {% endif %}
 
-        <div class="text-center mt-4">
+        <div class="text-center mt-4 mb-5">
             <a href="{% url 'ar' %}" class="btn btn-primary">
                 <i class="bi bi-controller me-1"></i>前往釣魚
             </a>
         </div>
+
+        {% include 'comments/board.html' with board='ar' board_title='排行榜' comments=comments %}
     </div>
 </section>
 {% endblock %}
