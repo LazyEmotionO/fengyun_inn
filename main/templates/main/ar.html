@@ -4,32 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AR 互動體驗 | 風雲客棧</title>
+    <title>釣魚互動體驗 | 風雲客棧</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- A-Frame 1.4.0 (local) — must be FIRST -->
-    <script src="{% static 'main/js/aframe.min.js' %}"></script>
-    <!-- MindAR face (local) — registers A-Frame components -->
-    <script src="{% static 'main/js/mindar-face-aframe.prod.js' %}"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; overflow: hidden; font-family: sans-serif; }
 
-        /* A-Frame 全螢幕 */
-        a-scene { width: 100vw; height: 100vh; }
+        body {
+            background: linear-gradient(180deg, #0a2a4a 0%, #0e4d6e 40%, #1a7a9a 100%);
+            overflow: hidden;
+            font-family: 'Microsoft JhengHei', sans-serif;
+            height: 100vh;
+            user-select: none;
+        }
 
-        /* Three.js overlay canvas */
-        #three-canvas {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 50;
+        /* 水面波紋動畫 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse 200px 60px at 20% 30%, rgba(255,255,255,0.04) 0%, transparent 70%),
+                radial-gradient(ellipse 300px 80px at 70% 60%, rgba(255,255,255,0.03) 0%, transparent 70%),
+                radial-gradient(ellipse 150px 40px at 50% 80%, rgba(255,255,255,0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* 頂部導覽 */
         #navbar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-            background: linear-gradient(90deg,rgba(10,15,40,0.85),rgba(0,50,100,0.8));
+            position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+            background: linear-gradient(90deg, rgba(10,15,40,0.92), rgba(0,50,100,0.88));
             backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: space-between;
             padding: 8px 16px;
@@ -39,27 +43,131 @@
         #navbar .brand small { color: #aaa; font-size: 0.65rem; display: block; }
         #navbar a { color: #fff; text-decoration: none; font-size: 0.85rem; }
 
-        /* 科技標籤 */
-        #tags {
-            position: fixed; top: 52px; right: 10px; z-index: 200;
-            display: flex; flex-direction: column; gap: 4px;
+        /* 計分板 */
+        #scoreboard {
+            position: fixed; top: 52px; left: 50%; transform: translateX(-50%);
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.65);
+            border: 2px solid #F0C040;
+            border-radius: 40px;
+            padding: 6px 28px;
+            display: flex; align-items: center; gap: 20px;
+            backdrop-filter: blur(6px);
         }
-        .tag {
-            background: rgba(0,40,100,0.8);
-            border: 1px solid #2b6cb0;
-            color: #90cdf4; font-size: 0.68rem;
-            border-radius: 6px; padding: 3px 8px;
+        #scoreboard .score-label { color: #aaa; font-size: 0.75rem; }
+        #scoreboard .score-val {
+            color: #F0C040; font-size: 1.6rem; font-weight: 700;
+            min-width: 48px; text-align: center;
+        }
+        #scoreboard .divider { color: rgba(255,255,255,0.3); }
+
+        /* 計時器 */
+        #timer-wrap {
+            position: fixed; top: 52px; right: 14px; z-index: 200;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px; padding: 5px 14px;
+            text-align: center;
+        }
+        #timer-wrap .t-label { color: #90cdf4; font-size: 0.65rem; }
+        #timer-wrap .t-val { color: #fff; font-size: 1.1rem; font-weight: 700; }
+
+        /* 重玩按鈕 */
+        #restart-btn {
+            position: fixed; top: 52px; left: 14px; z-index: 200;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px; padding: 5px 14px;
+            color: #90cdf4; font-size: 0.8rem; cursor: pointer;
+            display: none;
+        }
+        #restart-btn:hover { border-color: #F0C040; color: #F0C040; }
+
+        /* 遊戲場域 */
+        #game-area {
+            position: fixed;
+            top: 44px; left: 0; right: 0; bottom: 0;
+            z-index: 100;
+            overflow: hidden;
         }
 
-        /* 底部提示 */
+        /* 魚 */
+        .fish {
+            position: absolute;
+            cursor: pointer;
+            transition: none;
+            will-change: transform, left, top;
+        }
+        .fish img {
+            display: block;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            transition: transform 0.08s;
+        }
+        .fish:active img { transform: scale(0.85); }
+        .fish.caught { animation: catch-pop 0.35s ease-out forwards; pointer-events: none; }
+        @keyframes catch-pop {
+            0%   { opacity: 1; transform: scale(1.4); }
+            100% { opacity: 0; transform: scale(0.3); }
+        }
+
+        /* 加分浮字 */
+        .score-popup {
+            position: absolute;
+            font-size: 1.4rem; font-weight: 700;
+            pointer-events: none; z-index: 400;
+            animation: float-up 0.8s ease-out forwards;
+        }
+        @keyframes float-up {
+            0%   { opacity: 1; transform: translateY(0) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        /* 底部說明 */
         #hint {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
             z-index: 200;
-            background: rgba(0,0,0,0.7);
-            border: 1px solid rgba(240,192,64,0.5);
-            color: #F0C040; font-size: 0.85rem;
-            border-radius: 24px; padding: 8px 20px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(240,192,64,0.4);
+            color: #F0C040; font-size: 0.82rem;
+            border-radius: 24px; padding: 7px 20px;
             text-align: center; white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* 結算畫面 */
+        #result-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,20,0.88);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 12px;
+        }
+        #result-overlay.show { display: flex; }
+        #result-overlay h2 { color: #F0C040; font-size: 2rem; }
+        #result-overlay .final-score { color: #fff; font-size: 3.5rem; font-weight: 700; }
+        #result-overlay p { color: #90cdf4; font-size: 1rem; }
+        #result-overlay button {
+            margin-top: 12px;
+            background: #F0C040; color: #1a1a2e;
+            border: none; border-radius: 24px;
+            padding: 10px 32px; font-size: 1rem; font-weight: 700;
+            cursor: pointer;
+        }
+        #result-overlay button:hover { background: #ffd45a; }
+
+        /* 泡泡裝飾 */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: bubble-rise linear infinite;
+            pointer-events: none;
+        }
+        @keyframes bubble-rise {
+            0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+            100% { transform: translateY(-100vh) scale(1.4); opacity: 0; }
         }
     </style>
 </head>
@@ -69,168 +177,271 @@
 <div id="navbar">
     <div class="brand">
         &#9960; 風雲客棧
-        <small>水井村 AR 互動體驗</small>
+        <small>水井村 釣魚互動體驗</small>
     </div>
     <a href="{% url 'aiot' %}">
         <i class="bi bi-arrow-left-circle me-1"></i>返回
     </a>
 </div>
 
-<!-- 科技版本標籤 -->
-<div id="tags">
-    <div class="tag">MindAR 1.2.5</div>
-    <div class="tag">A-Frame 1.4.0</div>
-    <div class="tag">Three.js r147</div>
+<!-- 計分板 -->
+<div id="scoreboard">
+    <div class="text-center">
+        <div class="score-label">總分</div>
+        <div class="score-val" id="score-total">0</div>
+    </div>
+    <div class="divider">|</div>
+    <div class="text-center">
+        <div class="score-label" style="color:#63b3ed;">藍魚 ×<span id="blue-count">0</span></div>
+        <div class="score-val" style="color:#63b3ed;font-size:1rem;" id="blue-score">+0</div>
+    </div>
+    <div class="divider">|</div>
+    <div class="text-center">
+        <div class="score-label" style="color:#fc8181;">紅魚 ×<span id="red-count">0</span></div>
+        <div class="score-val" style="color:#fc8181;font-size:1rem;" id="red-score">+0</div>
+    </div>
 </div>
 
-<!-- Three.js 粒子背景 overlay -->
-<canvas id="three-canvas"></canvas>
+<!-- 計時器 -->
+<div id="timer-wrap">
+    <div class="t-label">剩餘時間</div>
+    <div class="t-val" id="timer">60</div>
+</div>
 
-<!-- ═══════════════════════════════════════════
-     A-Frame + MindAR Face AR Scene
-     最精簡設定，避免 color-space/renderer 衝突
-     ═══════════════════════════════════════════ -->
-<a-scene
-    mindar-face
-    embedded
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+<!-- 重玩 -->
+<button id="restart-btn" onclick="startGame()">
+    <i class="bi bi-arrow-clockwise me-1"></i>重玩
+</button>
 
-    <a-camera active="false" position="0 0 0"></a-camera>
-
-    <!-- 鼻樑中心 (168)：大紅球，最容易確認效果 -->
-    <a-entity mindar-face-target="anchorIndex: 168">
-        <a-sphere radius="0.08" color="#FF4444" opacity="0.95"
-            animation="property: scale; to: 1.4 1.4 1.4; dir: alternate; loop: true; dur: 700; easing: easeInOutSine">
-        </a-sphere>
-    </a-entity>
-
-    <!-- 前額 (10)：金色旋轉環 -->
-    <a-entity mindar-face-target="anchorIndex: 10">
-        <a-torus radius="0.12" radius-tubular="0.012"
-            color="#F0C040" opacity="0.9"
-            position="0 0.08 0"
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 2500; easing: linear">
-        </a-torus>
-    </a-entity>
-
-    <!-- 左臉頰 (234)：綠球 -->
-    <a-entity mindar-face-target="anchorIndex: 234">
-        <a-sphere radius="0.06" color="#38a169" opacity="0.9"
-            animation="property: position; to: -0.02 0.05 0; dir: alternate; loop: true; dur: 1000; easing: easeInOutSine">
-        </a-sphere>
-    </a-entity>
-
-    <!-- 右臉頰 (454)：綠球 -->
-    <a-entity mindar-face-target="anchorIndex: 454">
-        <a-sphere radius="0.06" color="#38a169" opacity="0.9"
-            animation="property: position; to: 0.02 0.05 0; dir: alternate; loop: true; dur: 1000; easing: easeInOutSine">
-        </a-sphere>
-    </a-entity>
-
-    <!-- 下巴 (152)：藍色旋轉方塊 -->
-    <a-entity mindar-face-target="anchorIndex: 152">
-        <a-box width="0.1" height="0.1" depth="0.1"
-            color="#1a6faf" opacity="0.9"
-            position="0 -0.05 0"
-            animation="property: rotation; to: 0 360 360; loop: true; dur: 3000; easing: linear">
-        </a-box>
-    </a-entity>
-
-    <!-- 左耳 (127)：水滴（藍錐）-->
-    <a-entity mindar-face-target="anchorIndex: 127">
-        <a-cone radius-bottom="0.035" radius-top="0" height="0.08"
-            color="#63b3ed" opacity="0.9"
-            position="-0.06 0 0" rotation="0 0 180"
-            animation="property: position; to: -0.06 0.04 0; dir: alternate; loop: true; dur: 1000">
-        </a-cone>
-    </a-entity>
-
-    <!-- 右耳 (356)：水滴（藍錐）-->
-    <a-entity mindar-face-target="anchorIndex: 356">
-        <a-cone radius-bottom="0.035" radius-top="0" height="0.08"
-            color="#63b3ed" opacity="0.9"
-            position="0.06 0 0" rotation="0 0 180"
-            animation="property: position; to: 0.06 0.04 0; dir: alternate; loop: true; dur: 1000">
-        </a-cone>
-    </a-entity>
-
-</a-scene>
+<!-- 遊戲場域 -->
+<div id="game-area"></div>
 
 <!-- 底部提示 -->
-<div id="hint">
-    <i class="bi bi-person-bounding-box me-1"></i>請將鏡頭對準臉部
+<div id="hint" id="hint">
+    <i class="bi bi-hand-index me-1"></i>點擊魚兒來得分！藍魚 +1，紅魚 +3
+</div>
+
+<!-- 結算 -->
+<div id="result-overlay">
+    <h2>&#127881; 時間到！</h2>
+    <p>最終得分</p>
+    <div class="final-score" id="final-score">0</div>
+    <p id="result-detail"></p>
+    <button onclick="startGame()"><i class="bi bi-arrow-clockwise me-2"></i>再玩一次</button>
+    <a href="{% url 'aiot' %}" style="color:#aaa;font-size:0.85rem;margin-top:4px;">返回網站</a>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// Three.js 粒子背景 — 使用 A-Frame 暴露的 window.THREE
-// ═══════════════════════════════════════════
-window.addEventListener('load', function () {
-    const T = window.THREE;
-    if (!T) { console.warn('[AR] THREE not available'); return; }
-    console.log('[AR] THREE r' + T.REVISION + ' ready');
+(function () {
+    const FISH_DATA = [
+        { id: 'blue', src: '{% static "main/images/fish1.png" %}', points: 1,  w: 120, speed: 2.2, color: '#63b3ed', label: '藍魚' },
+        { id: 'red',  src: '{% static "main/images/fish2.png" %}', points: 3,  w: 100, speed: 3.2, color: '#fc8181', label: '紅魚' },
+    ];
+    const GAME_DURATION = 60;
 
-    const canvas = document.getElementById('three-canvas');
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const gameArea = document.getElementById('game-area');
+    const elTotal  = document.getElementById('score-total');
+    const elBlueC  = document.getElementById('blue-count');
+    const elBlueS  = document.getElementById('blue-score');
+    const elRedC   = document.getElementById('red-count');
+    const elRedS   = document.getElementById('red-score');
+    const elTimer  = document.getElementById('timer');
+    const elResult = document.getElementById('result-overlay');
+    const elFinal  = document.getElementById('final-score');
+    const elDetail = document.getElementById('result-detail');
+    const elRestart= document.getElementById('restart-btn');
 
-    const renderer = new T.WebGLRenderer({ canvas, alpha: true, antialias: false });
-    renderer.setSize(canvas.width, canvas.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    let score = 0, blueCount = 0, redCount = 0, blueTotal = 0, redTotal = 0;
+    let timeLeft = GAME_DURATION;
+    let timerInterval = null;
+    let animFrame = null;
+    let running = false;
+    let fishes = [];
 
-    const scene  = new T.Scene();
-    const cam    = new T.PerspectiveCamera(60, canvas.width / canvas.height, 0.1, 100);
-    cam.position.z = 5;
+    function areaW() { return gameArea.offsetWidth; }
+    function areaH() { return gameArea.offsetHeight; }
 
-    window.addEventListener('resize', () => {
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-        cam.aspect = canvas.width / canvas.height;
-        cam.updateProjectionMatrix();
-        renderer.setSize(canvas.width, canvas.height);
-    });
-
-    // 建立粒子群
-    function makeParticles(n, color, range, size) {
-        const geo = new T.BufferGeometry();
-        const pos = new Float32Array(n * 3);
-        const vel = [];
-        for (let i = 0; i < n; i++) {
-            pos[i*3]   = (Math.random() - 0.5) * range;
-            pos[i*3+1] = (Math.random() - 0.5) * range;
-            pos[i*3+2] = (Math.random() - 0.5) * 2;
-            vel.push((Math.random() - 0.5) * 0.007, (Math.random() - 0.5) * 0.007);
+    /* 建立泡泡裝飾 */
+    function spawnBubbles() {
+        for (let i = 0; i < 18; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            const size = 4 + Math.random() * 12;
+            b.style.cssText = `
+                width:${size}px; height:${size}px;
+                left:${Math.random()*100}%;
+                bottom:${Math.random()*60}%;
+                animation-duration:${6+Math.random()*10}s;
+                animation-delay:${Math.random()*8}s;
+            `;
+            gameArea.appendChild(b);
         }
-        geo.setAttribute('position', new T.BufferAttribute(pos, 3));
-        const mat = new T.PointsMaterial({ color, size, transparent: true, opacity: 0.5 });
-        return { pts: new T.Points(geo, mat), vel, n };
     }
 
-    const gold = makeParticles(200, 0xF0C040, 12, 0.07);
-    const blue = makeParticles(120, 0x63b3ed, 10, 0.05);
-    scene.add(gold.pts, blue.pts);
+    /* 建立魚元素 */
+    function createFish(data) {
+        const el = document.createElement('div');
+        el.className = 'fish';
+        el.style.width = data.w + 'px';
 
-    (function tick() {
-        requestAnimationFrame(tick);
-        [gold, blue].forEach(p => {
-            const a = p.pts.geometry.attributes.position.array;
-            for (let i = 0; i < p.n; i++) {
-                a[i*3]   += p.vel[i*2];
-                a[i*3+1] += p.vel[i*2+1];
-                if (Math.abs(a[i*3])   > 6) p.vel[i*2]   *= -1;
-                if (Math.abs(a[i*3+1]) > 6) p.vel[i*2+1] *= -1;
-            }
-            p.pts.geometry.attributes.position.needsUpdate = true;
+        const img = document.createElement('img');
+        img.src = data.src;
+        img.width = data.w;
+        img.draggable = false;
+        el.appendChild(img);
+
+        // 初始位置（避開頂部 UI 80px）
+        const margin = 60;
+        const x = margin + Math.random() * (areaW() - data.w - margin * 2);
+        const y = 80 + Math.random() * (areaH() - 120 - 80);
+        el.style.left = x + 'px';
+        el.style.top  = y + 'px';
+
+        // 隨機速度方向
+        const angle = Math.random() * Math.PI * 2;
+        const spd = data.speed * (0.8 + Math.random() * 0.4);
+        const fish = {
+            el, data,
+            x, y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd * 0.45,   // 垂直振幅較小
+            wobble: 0,
+            wobbleSpeed: 0.04 + Math.random() * 0.03,
+            wobbleAmp: 18 + Math.random() * 20,
+        };
+
+        el.addEventListener('click', () => onFishClick(fish));
+        gameArea.appendChild(el);
+        return fish;
+    }
+
+    function onFishClick(fish) {
+        if (!running) return;
+        const pts = fish.data.points;
+
+        // 更新分數
+        score += pts;
+        if (fish.data.id === 'blue') { blueCount++; blueTotal += pts; }
+        else                         { redCount++;  redTotal  += pts; }
+        updateScoreboard();
+
+        // 加分浮字
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        popup.style.cssText = `left:${fish.x + fish.data.w/2 - 20}px; top:${fish.y}px; color:${fish.data.color};`;
+        popup.textContent = '+' + pts;
+        gameArea.appendChild(popup);
+        popup.addEventListener('animationend', () => popup.remove());
+
+        // 捕捉動畫後重生
+        fish.el.classList.add('caught');
+        fish.el.addEventListener('animationend', () => {
+            fish.el.classList.remove('caught');
+            // 重生於新位置
+            fish.x = 60 + Math.random() * (areaW() - fish.data.w - 120);
+            fish.y = 80 + Math.random() * (areaH() - 160);
+            const angle = Math.random() * Math.PI * 2;
+            const spd = fish.data.speed * (0.8 + Math.random() * 0.4);
+            fish.vx = Math.cos(angle) * spd;
+            fish.vy = Math.sin(angle) * spd * 0.45;
+        }, { once: true });
+    }
+
+    function updateScoreboard() {
+        elTotal.textContent = score;
+        elBlueC.textContent = blueCount;
+        elRedC.textContent  = redCount;
+        elBlueS.textContent = '+' + blueTotal;
+        elRedS.textContent  = '+' + redTotal;
+    }
+
+    /* 動畫更新 */
+    function tick() {
+        if (!running) return;
+        const W = areaW(), H = areaH();
+
+        fishes.forEach(fish => {
+            // 正弦波垂直游動
+            fish.wobble += fish.wobbleSpeed;
+            const waveY = Math.sin(fish.wobble) * fish.wobbleAmp * 0.04;
+
+            fish.x += fish.vx;
+            fish.y += fish.vy + waveY;
+
+            // 碰壁反彈
+            const maxX = W - fish.data.w - 10;
+            const minY = 80, maxY = H - 90;
+
+            if (fish.x < 10)    { fish.x = 10;   fish.vx =  Math.abs(fish.vx); }
+            if (fish.x > maxX)  { fish.x = maxX;  fish.vx = -Math.abs(fish.vx); }
+            if (fish.y < minY)  { fish.y = minY;  fish.vy =  Math.abs(fish.vy); }
+            if (fish.y > maxY)  { fish.y = maxY;  fish.vy = -Math.abs(fish.vy); }
+
+            // 向左游動時翻轉圖片
+            const img = fish.el.querySelector('img');
+            img.style.transform = fish.vx < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+
+            fish.el.style.left = fish.x + 'px';
+            fish.el.style.top  = fish.y + 'px';
         });
-        gold.pts.rotation.z += 0.0006;
-        blue.pts.rotation.z -= 0.0004;
-        renderer.render(scene, cam);
-    })();
-});
 
-// 診斷
-console.log('[AR] AFRAME:', typeof AFRAME !== 'undefined' ? 'OK v' + AFRAME.version : 'MISSING');
+        animFrame = requestAnimationFrame(tick);
+    }
+
+    /* 倒計時 */
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            elTimer.textContent = timeLeft;
+            if (timeLeft <= 10) elTimer.style.color = '#fc8181';
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+    }
+
+    function endGame() {
+        running = false;
+        clearInterval(timerInterval);
+        cancelAnimationFrame(animFrame);
+
+        elFinal.textContent = score;
+        elDetail.textContent = `藍魚 ${blueCount} 隻（+${blueTotal}）　紅魚 ${redCount} 隻（+${redTotal}）`;
+        elResult.classList.add('show');
+        elRestart.style.display = 'block';
+    }
+
+    window.startGame = function () {
+        // 清除舊魚
+        fishes.forEach(f => f.el.remove());
+        fishes = [];
+        gameArea.querySelectorAll('.score-popup').forEach(e => e.remove());
+        gameArea.querySelectorAll('.bubble').forEach(e => e.remove());
+
+        // 重置狀態
+        score = blueCount = redCount = blueTotal = redTotal = 0;
+        timeLeft = GAME_DURATION;
+        elTimer.style.color = '#fff';
+        elResult.classList.remove('show');
+        elRestart.style.display = 'none';
+        clearInterval(timerInterval);
+        cancelAnimationFrame(animFrame);
+        updateScoreboard();
+        elTimer.textContent = GAME_DURATION;
+
+        spawnBubbles();
+        // 各產生 2 隻
+        FISH_DATA.forEach(data => {
+            fishes.push(createFish(data));
+            fishes.push(createFish(data));
+        });
+
+        running = true;
+        tick();
+        startTimer();
+    };
+
+    // 頁面載入後自動開始
+    window.startGame();
+})();
 </script>
 </body>
 </html>

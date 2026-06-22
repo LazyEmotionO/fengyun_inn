@@ -67,20 +67,30 @@
         {% endif %}
 
         <!-- Period Filter -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <h2 class="section-title mb-2">統計與趨勢分析</h2>
-            <div class="btn-group" role="group" aria-label="統計區間">
-                {% for option in day_options %}
-                <a href="?days={{ option }}" class="btn btn-sm {% if option == days %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                    近 {{ option }} 天
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="btn-group" role="group" aria-label="統計區間">
+                    {% for option in day_options %}
+                    <a href="?days={{ option }}" class="btn btn-sm {% if option == days %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        {% if option == 0 %}全部資料{% else %}近 {{ option }} 天{% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'water:export_csv' pond.id %}?days={{ days }}"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-download me-1"></i>下載 CSV
                 </a>
-                {% endfor %}
+                <a href="{% url 'water:alerts_list' %}?pond={{ pond.id }}"
+                   class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-exclamation-triangle me-1"></i>異常紀錄
+                </a>
             </div>
         </div>
 
         {% if reading_count %}
         <p class="text-muted">
-            近 {{ days }} 天共 <strong>{{ reading_count }}</strong> 筆感測紀錄，
+            {% if days == 0 %}全部{% else %}近 {{ days }} 天{% endif %}共 <strong>{{ reading_count }}</strong> 筆感測紀錄，
             其中 <strong class="{% if anomaly_count %}text-danger{% else %}text-success{% endif %}">{{ anomaly_count }}</strong> 筆超出安全範圍
             （異常率 {{ anomaly_pct }}%）。
         </p>
@@ -160,8 +170,11 @@
             </div>
         </div>
         {% else %}
-        <div class="alert alert-secondary">
+        <div class="alert alert-warning">
             <i class="bi bi-info-circle me-2"></i>所選區間內尚無感測資料。
+            {% if days != 0 %}
+            請點擊上方「<a href="?days=0" class="alert-link">全部資料</a>」查看所有歷史紀錄。
+            {% endif %}
         </div>
         {% endif %}
 

@@ -40,14 +40,18 @@
         </div>
 
         {% if alert_count > 0 %}
-        <div class="alert alert-danger d-flex align-items-center" role="alert">
-            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-            <div>偵測到 <strong>{{ alert_count }}</strong> 個池塘水質異常，請點擊下方卡片查看詳細分析與建議。</div>
+        <div class="alert alert-danger d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+            <div><i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>偵測到 <strong>{{ alert_count }}</strong> 個池塘水質異常，請點擊下方卡片查看詳細分析與建議。</div>
+            <a href="{% url 'water:alerts_list' %}" class="btn btn-sm btn-danger">
+                <i class="bi bi-list-ul me-1"></i>查看異常紀錄
+            </a>
         </div>
         {% else %}
-        <div class="alert alert-success d-flex align-items-center" role="alert">
-            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
-            <div>目前所有池塘水質皆在正常範圍內，系統運作正常。</div>
+        <div class="alert alert-success d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+            <div><i class="bi bi-check-circle-fill fs-4 me-3"></i>目前所有池塘水質皆在正常範圍內，系統運作正常。</div>
+            <a href="{% url 'water:alerts_list' %}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-list-ul me-1"></i>查看異常紀錄
+            </a>
         </div>
         {% endif %}
     </div>

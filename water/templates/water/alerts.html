@@ -1,0 +1,136 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}水質異常紀錄 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">水質異常紀錄</h1>
+        <p class="lead">歷史超出安全範圍的感測紀錄彙整</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'water:dashboard' %}" class="text-white">智慧養殖</a></li>
+                <li class="breadcrumb-item active text-white-50">異常紀錄</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+
+        <!-- 篩選列 -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <span class="text-muted small me-2">篩選池塘：</span>
+            <a href="{% url 'water:alerts_list' %}"
+               class="btn btn-sm {% if not selected_pond %}btn-danger{% else %}btn-outline-secondary{% endif %}">
+                全部池塘
+            </a>
+            {% for pond in ponds %}
+            <a href="?pond={{ pond.id }}"
+               class="btn btn-sm {% if selected_pond.id == pond.id %}btn-danger{% else %}btn-outline-secondary{% endif %}">
+                {{ pond.name }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- 結果數量 -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="text-muted mb-0">
+                共找到 <strong class="text-danger">{{ anomaly_readings|length }}</strong> 筆異常紀錄
+                {% if selected_pond %}（{{ selected_pond.name }}）{% endif %}
+            </p>
+            {% if selected_pond %}
+            <a href="{% url 'water:pond_detail' selected_pond.id %}?days=0"
+               class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-graph-up me-1"></i>查看 {{ selected_pond.name }} 完整分析
+            </a>
+            {% endif %}
+        </div>
+
+        {% if anomaly_readings %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>時間</th>
+                        <th>池塘</th>
+                        <th>異常指標</th>
+                        <th>水溫(°C)</th>
+                        <th>pH</th>
+                        <th>溶氧(mg/L)</th>
+                        <th>鹽度(ppt)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in anomaly_readings %}
+                    <tr>
+                        <td class="text-nowrap small text-muted">
+                            {{ item.reading.measured_at|date:"Y/m/d H:i" }}
+                        </td>
+                        <td class="text-nowrap">
+                            <a href="{% url 'water:pond_detail' item.reading.pond.id %}?days=0"
+                               class="text-decoration-none fw-bold">
+                                {{ item.reading.pond.name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% for alert in item.alerts %}
+                            <span class="badge {% if alert.level == 'low' %}bg-primary{% else %}bg-danger{% endif %} me-1">
+                                {{ alert.label }}
+                                {% if alert.level == 'low' %}↓{% else %}↑{% endif %}
+                                {{ alert.value }}{{ alert.unit }}
+                            </span>
+                            {% endfor %}
+                        </td>
+                        <td class="text-center
+                            {% for alert in item.alerts %}{% if alert.metric == 'temperature' %}fw-bold text-danger{% endif %}{% endfor %}">
+                            {{ item.reading.temperature|floatformat:1 }}
+                        </td>
+                        <td class="text-center
+                            {% for alert in item.alerts %}{% if alert.metric == 'ph' %}fw-bold text-danger{% endif %}{% endfor %}">
+                            {{ item.reading.ph|floatformat:2 }}
+                        </td>
+                        <td class="text-center
+                            {% for alert in item.alerts %}{% if alert.metric == 'dissolved_oxygen' %}fw-bold text-danger{% endif %}{% endfor %}">
+                            {{ item.reading.dissolved_oxygen|floatformat:1 }}
+                        </td>
+                        <td class="text-center
+                            {% for alert in item.alerts %}{% if alert.metric == 'salinity' %}fw-bold text-danger{% endif %}{% endfor %}">
+                            {% if item.reading.salinity is not None %}{{ item.reading.salinity|floatformat:1 }}{% else %}—{% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'water:pond_detail' item.reading.pond.id %}?days=0"
+                               class="btn btn-sm btn-outline-secondary py-0">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {% if selected_pond %}{{ selected_pond.name }} 歷史紀錄中沒有水質異常。{% else %}所有池塘歷史紀錄中均無水質異常。{% endif %}
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2 mt-4">
+            <a href="{% url 'water:dashboard' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-1"></i>回到總覽
+            </a>
+            {% if selected_pond %}
+            <a href="{% url 'water:export_csv' selected_pond.id %}?days=0"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-download me-1"></i>下載 {{ selected_pond.name }} 完整 CSV
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

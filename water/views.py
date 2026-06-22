@@ -1,13 +1,15 @@
+import csv
 import json
 from datetime import timedelta
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.db.models import Avg, Count, Max, Min
 from django.utils import timezone
 
-from .models import THRESHOLDS, Pond, threshold_range_text
+from .models import THRESHOLDS, Pond, SensorReading, threshold_range_text
 
-DAY_OPTIONS = [1, 7, 14, 30]
+DAY_OPTIONS = [1, 7, 14, 30, 0]  # 0 = 全部資料
 
 
 def dashboard(request):
@@ -41,19 +43,26 @@ def pond_detail(request, pond_id):
     pond = get_object_or_404(Pond, pk=pond_id)
 
     try:
-        days = int(request.GET.get("days", 7))
+        days = int(request.GET.get("days", 30))
     except ValueError:
-        days = 7
+        days = 30
     if days not in DAY_OPTIONS:
-        days = 7
+        days = 30
 
-    since = timezone.now() - timedelta(days=days)
-    readings = list(pond.readings.filter(measured_at__gte=since).order_by("measured_at"))
+    if days == 0:
+        qs = pond.readings.order_by("measured_at")
+        stats_qs = pond.readings
+    else:
+        since = timezone.now() - timedelta(days=days)
+        qs = pond.readings.filter(measured_at__gte=since).order_by("measured_at")
+        stats_qs = qs
+
+    readings = list(qs)
 
     latest = pond.readings.first()
     alerts = latest.get_alerts() if latest else []
 
-    stats = pond.readings.filter(measured_at__gte=since).aggregate(
+    stats = stats_qs.aggregate(
         temperature_avg=Avg("temperature"),
         temperature_min=Min("temperature"),
         temperature_max=Max("temperature"),
@@ -85,7 +94,7 @@ def pond_detail(request, pond_id):
     for field, rule in THRESHOLDS.items():
         avg = stats.get(f"{field}_avg")
         avg_status = "no_data"
-        analysis = "近期尚無資料"
+        analysis = "所選區間尚無資料"
         if avg is not None:
             too_low = rule["min"] is not None and avg < rule["min"]
             too_high = rule["max"] is not None and avg > rule["max"]
@@ -134,3 +143,68 @@ def pond_detail(request, pond_id):
         "chart_salinity_json": json.dumps(chart_series["salinity"]),
     }
     return render(request, "water/pond_detail.html", context)
+
+
+def alerts_list(request):
+    pond_id = request.GET.get("pond")
+    selected_pond = None
+
+    if pond_id:
+        try:
+            selected_pond = get_object_or_404(Pond, pk=int(pond_id))
+            base_qs = selected_pond.readings.select_related("pond")
+        except (ValueError, TypeError):
+            base_qs = SensorReading.objects.select_related("pond")
+    else:
+        base_qs = SensorReading.objects.select_related("pond")
+
+    anomaly_readings = []
+    for reading in base_qs.order_by("-measured_at")[:600]:
+        a = reading.get_alerts()
+        if a:
+            anomaly_readings.append({"reading": reading, "alerts": a})
+        if len(anomaly_readings) >= 100:
+            break
+
+    context = {
+        "anomaly_readings": anomaly_readings,
+        "ponds": Pond.objects.all(),
+        "selected_pond": selected_pond,
+    }
+    return render(request, "water/alerts.html", context)
+
+
+def export_csv(request, pond_id):
+    pond = get_object_or_404(Pond, pk=pond_id)
+
+    try:
+        days = int(request.GET.get("days", 0))
+    except ValueError:
+        days = 0
+    if days not in DAY_OPTIONS:
+        days = 0
+
+    if days == 0:
+        qs = pond.readings.order_by("measured_at")
+    else:
+        since = timezone.now() - timedelta(days=days)
+        qs = pond.readings.filter(measured_at__gte=since).order_by("measured_at")
+
+    response = HttpResponse(content_type="text/csv; charset=utf-8-sig")
+    response["Content-Disposition"] = (
+        f'attachment; filename="{pond.name}_water_quality.csv"'
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(["時間", "水溫(°C)", "pH值", "溶氧(mg/L)", "鹽度(ppt)", "狀態"])
+    for reading in qs:
+        writer.writerow([
+            timezone.localtime(reading.measured_at).strftime("%Y/%m/%d %H:%M"),
+            reading.temperature,
+            reading.ph,
+            reading.dissolved_oxygen,
+            reading.salinity if reading.salinity is not None else "",
+            "正常" if reading.is_normal else "異常",
+        ])
+
+    return response
