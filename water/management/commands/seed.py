@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         ponds = []
         for spec in PONDS:
-            pond, _ = Pond.objects.get_or_create(name=spec["name"], defaults=spec)
+            pond, _ = Pond.objects.get_or_create(owner=None, name=spec["name"], defaults=spec)
             ponds.append(pond)
 
         now = timezone.now().replace(minute=0, second=0, microsecond=0)

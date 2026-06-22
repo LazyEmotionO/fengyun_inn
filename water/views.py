@@ -3,6 +3,7 @@ import json
 from datetime import timedelta
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg, Count, Max, Min
@@ -24,8 +25,9 @@ def _score_class(score):
     return "danger"
 
 
+@login_required
 def dashboard(request):
-    ponds = Pond.objects.all()
+    ponds = Pond.objects.filter(owner=request.user)
 
     pond_data = []
     alert_count = 0
@@ -58,8 +60,9 @@ def dashboard(request):
     return render(request, "water/dashboard.html", context)
 
 
+@login_required
 def pond_detail(request, pond_id):
-    pond = get_object_or_404(Pond, pk=pond_id)
+    pond = get_object_or_404(Pond, pk=pond_id, owner=request.user)
     thresholds = pond.get_thresholds()
 
     try:
@@ -166,8 +169,9 @@ def pond_detail(request, pond_id):
     return render(request, "water/pond_detail.html", context)
 
 
+@login_required
 def edit_thresholds(request, pond_id):
-    pond = get_object_or_404(Pond, pk=pond_id)
+    pond = get_object_or_404(Pond, pk=pond_id, owner=request.user)
     if request.method == "POST":
         form = PondThresholdForm(request.POST, instance=pond)
         if form.is_valid():
@@ -179,18 +183,20 @@ def edit_thresholds(request, pond_id):
     return render(request, "water/edit_thresholds.html", {"pond": pond, "form": form})
 
 
+@login_required
 def alerts_list(request):
     pond_id = request.GET.get("pond")
     selected_pond = None
+    own_ponds = Pond.objects.filter(owner=request.user)
 
     if pond_id:
         try:
-            selected_pond = get_object_or_404(Pond, pk=int(pond_id))
+            selected_pond = get_object_or_404(Pond, pk=int(pond_id), owner=request.user)
             base_qs = selected_pond.readings.select_related("pond")
         except (ValueError, TypeError):
-            base_qs = SensorReading.objects.select_related("pond")
+            base_qs = SensorReading.objects.filter(pond__owner=request.user).select_related("pond")
     else:
-        base_qs = SensorReading.objects.select_related("pond")
+        base_qs = SensorReading.objects.filter(pond__owner=request.user).select_related("pond")
 
     anomaly_readings = []
     for reading in base_qs.order_by("-measured_at")[:600]:
@@ -203,14 +209,15 @@ def alerts_list(request):
 
     context = {
         "anomaly_readings": anomaly_readings,
-        "ponds": Pond.objects.all(),
+        "ponds": own_ponds,
         "selected_pond": selected_pond,
     }
     return render(request, "water/alerts.html", context)
 
 
+@login_required
 def export_csv(request, pond_id):
-    pond = get_object_or_404(Pond, pk=pond_id)
+    pond = get_object_or_404(Pond, pk=pond_id, owner=request.user)
     thresholds = pond.get_thresholds()
 
     try:

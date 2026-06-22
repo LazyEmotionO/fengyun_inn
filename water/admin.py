@@ -5,7 +5,8 @@ from .models import Pond, SensorReading
 
 @admin.register(Pond)
 class PondAdmin(admin.ModelAdmin):
-    list_display = ("name", "species", "description")
+    list_display = ("name", "owner", "species", "description")
+    list_filter = ("owner",)
 
 
 @admin.register(SensorReading)

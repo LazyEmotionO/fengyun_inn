@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 # 全局預設值 — 作為新建池塘的初始門檻，也供表單初始值參考。
@@ -20,7 +21,15 @@ def threshold_range_text(rule):
 class Pond(models.Model):
     """養殖池基本資料，含各池專屬水質安全門檻。"""
 
-    name = models.CharField(max_length=50, unique=True)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="ponds",
+        verbose_name="養殖場主人",
+    )
+    name = models.CharField(max_length=50)
     description = models.CharField(max_length=200, blank=True)
     species = models.CharField(max_length=50, default="文蛤")
 
@@ -32,6 +41,11 @@ class Pond(models.Model):
     do_min = models.FloatField("溶氧下限 (mg/L)", default=4.0)
     salinity_min = models.FloatField("鹽度下限 (ppt)", default=15)
     salinity_max = models.FloatField("鹽度上限 (ppt)", default=35)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["owner", "name"], name="unique_pond_name_per_owner"),
+        ]
 
     def __str__(self):
         return self.name

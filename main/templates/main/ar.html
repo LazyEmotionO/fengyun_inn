@@ -72,6 +72,17 @@
         #timer-wrap .t-label { color: #90cdf4; font-size: 0.65rem; }
         #timer-wrap .t-val { color: #fff; font-size: 1.1rem; font-weight: 700; }
 
+        /* 累積總分 */
+        #cumulative-wrap {
+            position: fixed; top: 100px; right: 14px; z-index: 200;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(240,192,64,0.4);
+            border-radius: 16px; padding: 4px 14px;
+            text-align: center;
+        }
+        #cumulative-wrap .c-label { color: #F0C040; font-size: 0.6rem; }
+        #cumulative-wrap .c-val { color: #fff; font-size: 0.95rem; font-weight: 700; }
+
         /* 重玩按鈕 */
         #restart-btn {
             position: fixed; top: 52px; left: 14px; z-index: 200;
@@ -123,6 +134,17 @@
             100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
         }
 
+        /* 訪客提示 */
+        #guest-banner {
+            position: fixed; bottom: 56px; left: 50%; transform: translateX(-50%);
+            z-index: 250; max-width: 92vw;
+            background: rgba(240,192,64,0.92);
+            color: #1a1a2e; font-size: 0.75rem;
+            text-align: center; padding: 5px 16px;
+            border-radius: 16px; white-space: nowrap;
+        }
+        #guest-banner a { color: #0f3460; font-weight: 700; text-decoration: underline; }
+
         /* 底部說明 */
         #hint {
             position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
@@ -173,16 +195,32 @@
 </head>
 <body>
 
+{% csrf_token %}
+
 <!-- 頂部導覽 -->
 <div id="navbar">
     <div class="brand">
         &#9960; 風雲客棧
         <small>水井村 釣魚互動體驗</small>
     </div>
-    <a href="{% url 'aiot' %}">
-        <i class="bi bi-arrow-left-circle me-1"></i>返回
-    </a>
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'ar_leaderboard' %}">
+            <i class="bi bi-trophy-fill me-1"></i>排行榜
+        </a>
+        <a href="{% url 'aiot' %}">
+            <i class="bi bi-arrow-left-circle me-1"></i>返回
+        </a>
+    </div>
 </div>
+
+{% if not user.is_authenticated %}
+<div id="guest-banner">
+    <i class="bi bi-info-circle me-1"></i>
+    您目前以訪客身分遊玩，分數不會累積。
+    <a href="{% url 'accounts:login' %}?next={{ request.path }}">登入</a> 或
+    <a href="{% url 'accounts:register' %}">註冊</a> 即可將分數累積至排行榜。
+</div>
+{% endif %}
 
 <!-- 計分板 -->
 <div id="scoreboard">
@@ -208,6 +246,14 @@
     <div class="t-val" id="timer">60</div>
 </div>
 
+{% if user.is_authenticated %}
+<!-- 累積總分 -->
+<div id="cumulative-wrap">
+    <div class="c-label">累積總分</div>
+    <div class="c-val" id="cumulative-total">{{ total_score }}</div>
+</div>
+{% endif %}
+
 <!-- 重玩 -->
 <button id="restart-btn" onclick="startGame()">
     <i class="bi bi-arrow-clockwise me-1"></i>重玩
@@ -227,7 +273,9 @@
     <p>最終得分</p>
     <div class="final-score" id="final-score">0</div>
     <p id="result-detail"></p>
+    <p id="result-submit-status" style="color:#90cdf4;font-size:0.85rem;"></p>
     <button onclick="startGame()"><i class="bi bi-arrow-clockwise me-2"></i>再玩一次</button>
+    <a href="{% url 'ar_leaderboard' %}" style="color:#F0C040;font-size:0.85rem;margin-top:4px;">查看排行榜</a>
     <a href="{% url 'aiot' %}" style="color:#aaa;font-size:0.85rem;margin-top:4px;">返回網站</a>
 </div>
 
@@ -249,7 +297,12 @@
     const elResult = document.getElementById('result-overlay');
     const elFinal  = document.getElementById('final-score');
     const elDetail = document.getElementById('result-detail');
+    const elSubmit = document.getElementById('result-submit-status');
     const elRestart= document.getElementById('restart-btn');
+    const elCumulative = document.getElementById('cumulative-total');
+
+    const IS_AUTHENTICATED = {% if user.is_authenticated %}true{% else %}false{% endif %};
+    const CSRF_TOKEN = document.querySelector('input[name=csrfmiddlewaretoken]').value;
 
     let score = 0, blueCount = 0, redCount = 0, blueTotal = 0, redTotal = 0;
     let timeLeft = GAME_DURATION;
@@ -407,6 +460,28 @@
         elDetail.textContent = `藍魚 ${blueCount} 隻（+${blueTotal}）　紅魚 ${redCount} 隻（+${redTotal}）`;
         elResult.classList.add('show');
         elRestart.style.display = 'block';
+
+        if (IS_AUTHENTICATED && score > 0) {
+            elSubmit.textContent = '分數累積中...';
+            fetch('{% url "ar_submit_score" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN,
+                },
+                body: JSON.stringify({ score: score }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                elSubmit.textContent = `已累積 +${data.added} 分，目前累積總分 ${data.total}`;
+                if (elCumulative) elCumulative.textContent = data.total;
+            })
+            .catch(() => {
+                elSubmit.textContent = '分數累積失敗，請檢查網路連線';
+            });
+        } else if (!IS_AUTHENTICATED) {
+            elSubmit.textContent = '登入後即可將分數累積至排行榜';
+        }
     }
 
     window.startGame = function () {
@@ -420,6 +495,7 @@
         score = blueCount = redCount = blueTotal = redTotal = 0;
         timeLeft = GAME_DURATION;
         elTimer.style.color = '#fff';
+        elSubmit.textContent = '';
         elResult.classList.remove('show');
         elRestart.style.display = 'none';
         clearInterval(timerInterval);

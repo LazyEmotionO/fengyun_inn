@@ -6,7 +6,7 @@
 {% block content %}
 <div class="page-header py-5">
     <div class="container text-center text-white">
-        <h1 class="display-5 fw-bold">智慧養殖水質監測</h1>
+        <h1 class="display-5 fw-bold">{{ request.user.profile.nickname|default:request.user.username }} 的養殖場</h1>
         <p class="lead">TASMOTA 感測模組即時回傳水溫、鹽度、pH、溶氧，AI 自動分析並提示異常</p>
         <nav aria-label="breadcrumb" class="justify-content-center d-flex">
             <ol class="breadcrumb">

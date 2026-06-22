@@ -68,6 +68,7 @@
                             <li><a class="dropdown-item" href="{% url 'aiot' %}"><i class="bi bi-cpu me-2"></i>AIoT 科技</a></li>
                             <li><a class="dropdown-item" href="{% url 'water:dashboard' %}"><i class="bi bi-water me-2"></i>智慧養殖</a></li>
                             <li><a class="dropdown-item" href="{% url 'ar' %}"><i class="bi bi-badge-ar me-2"></i>AR 互動體驗</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ar_leaderboard' %}"><i class="bi bi-trophy me-2"></i>AR 排行榜</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -80,6 +81,37 @@
                             <i class="bi bi-envelope me-1"></i>聯絡我們
                         </a>
                     </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>{{ user.profile.nickname|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'water:dashboard' %}"><i class="bi bi-water me-2"></i>我的養殖場</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ar_leaderboard' %}"><i class="bi bi-trophy me-2"></i>AR 排行榜</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'accounts:logout' %}" class="px-3">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item px-0">
+                                        <i class="bi bi-box-arrow-right me-2"></i>登出
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}?next={{ request.path }}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>登入
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:register' %}">
+                            <i class="bi bi-person-plus me-1"></i>註冊
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -166,6 +198,7 @@
                         <li><a href="{% url 'aiot' %}" class="footer-link">AIoT 科技</a></li>
                         <li><a href="{% url 'water:dashboard' %}" class="footer-link">智慧養殖</a></li>
                         <li><a href="{% url 'ar' %}" class="footer-link">AR 互動體驗</a></li>
+                        <li><a href="{% url 'ar_leaderboard' %}" class="footer-link">AR 排行榜</a></li>
                         <li><a href="{% url 'usr' %}" class="footer-link">USR 成果</a></li>
                         <li><a href="{% url 'activities' %}" class="footer-link">體驗課程</a></li>
                         <li><a href="{% url 'gallery' %}" class="footer-link">影像相簿</a></li>

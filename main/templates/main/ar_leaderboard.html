@@ -1,0 +1,77 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}AR 釣魚排行榜 | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold"><i class="bi bi-trophy-fill me-2"></i>AR 釣魚排行榜</h1>
+        <p class="lead">登入帳號遊玩，分數會持續累積，看看誰是水井村釣魚王</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'ar' %}" class="text-white">AR 互動體驗</a></li>
+                <li class="breadcrumb-item active text-white-50">排行榜</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container" style="max-width: 680px;">
+
+        {% if my_profile %}
+        <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+            <span><i class="bi bi-person-circle me-2"></i>{{ my_profile.nickname }} 目前累積總分</span>
+            <strong class="fs-5">{{ my_profile.ar_score }}</strong>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-4">
+            <i class="bi bi-info-circle me-2"></i>
+            <a href="{% url 'accounts:login' %}?next={% url 'ar_leaderboard' %}">登入</a> 或
+            <a href="{% url 'accounts:register' %}">註冊</a> 帳號，開始累積您的釣魚分數！
+        </div>
+        {% endif %}
+
+        {% if top_profiles %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width:64px;">名次</th>
+                        <th>暱稱</th>
+                        <th class="text-end">累積總分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in top_profiles %}
+                    <tr {% if my_profile and profile.pk == my_profile.pk %}class="table-warning"{% endif %}>
+                        <td class="text-center">
+                            {% if forloop.counter == 1 %}<i class="bi bi-trophy-fill text-warning"></i>
+                            {% elif forloop.counter == 2 %}<i class="bi bi-trophy-fill text-secondary"></i>
+                            {% elif forloop.counter == 3 %}<i class="bi bi-trophy-fill" style="color:#cd7f32;"></i>
+                            {% else %}{{ forloop.counter }}
+                            {% endif %}
+                        </td>
+                        <td>{{ profile.nickname|default:profile.user.username }}</td>
+                        <td class="text-end fw-bold">{{ profile.ar_score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-secondary">
+            <i class="bi bi-info-circle me-2"></i>目前尚無排行榜資料，快去 <a href="{% url 'ar' %}">AR 釣魚體驗</a> 搶頭香！
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="{% url 'ar' %}" class="btn btn-primary">
+                <i class="bi bi-controller me-1"></i>前往釣魚
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

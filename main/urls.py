@@ -14,4 +14,6 @@ urlpatterns = [
     path('activities/', views.activities, name='activities'),
     path('gallery/', views.gallery, name='gallery'),
     path('ar/', views.ar, name='ar'),
+    path('ar/submit-score/', views.ar_submit_score, name='ar_submit_score'),
+    path('ar/leaderboard/', views.ar_leaderboard, name='ar_leaderboard'),
 ]

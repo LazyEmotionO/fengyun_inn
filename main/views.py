@@ -1,9 +1,18 @@
+import json
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import F, Q
+from django.views.decorators.http import require_POST
+
+from accounts.models import Profile
 from .models import Event, Story, NewsItem, AIoTProject
 from .forms import ContactForm
+
+AR_MAX_SCORE_PER_SESSION = 300
 
 
 def home(request):
@@ -109,4 +118,42 @@ def gallery(request):
 
 
 def ar(request):
-    return render(request, 'main/ar.html')
+    total_score = None
+    if request.user.is_authenticated:
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        total_score = profile.ar_score
+    return render(request, 'main/ar.html', {'total_score': total_score})
+
+
+@require_POST
+@login_required
+def ar_submit_score(request):
+    try:
+        data = json.loads(request.body)
+        score = int(data.get('score', 0))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return JsonResponse({'error': 'invalid score'}, status=400)
+
+    score = max(0, min(score, AR_MAX_SCORE_PER_SESSION))
+
+    Profile.objects.get_or_create(user=request.user)
+    Profile.objects.filter(user=request.user).update(ar_score=F('ar_score') + score)
+    total = Profile.objects.get(user=request.user).ar_score
+
+    return JsonResponse({'added': score, 'total': total})
+
+
+def ar_leaderboard(request):
+    top_profiles = (
+        Profile.objects.filter(ar_score__gt=0)
+        .select_related('user')
+        .order_by('-ar_score')[:50]
+    )
+    my_profile = None
+    if request.user.is_authenticated:
+        my_profile, _ = Profile.objects.get_or_create(user=request.user)
+    context = {
+        'top_profiles': top_profiles,
+        'my_profile': my_profile,
+    }
+    return render(request, 'main/ar_leaderboard.html', context)
