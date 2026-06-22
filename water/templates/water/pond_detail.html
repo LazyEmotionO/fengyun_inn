@@ -8,6 +8,12 @@
     <div class="container text-center text-white">
         <h1 class="display-5 fw-bold">{{ pond.name }}</h1>
         <p class="lead">{{ pond.species }}{% if pond.description %} · {{ pond.description }}{% endif %}</p>
+        {% if request.user.is_staff and pond.owner != request.user %}
+        <p class="small text-warning mb-0">
+            <i class="bi bi-shield-lock me-1"></i>管理員視角 — 養殖場主人：
+            {% if pond.owner %}{{ pond.owner.profile.nickname|default:pond.owner.username }}{% else %}未指定{% endif %}
+        </p>
+        {% endif %}
         <nav aria-label="breadcrumb" class="justify-content-center d-flex">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>

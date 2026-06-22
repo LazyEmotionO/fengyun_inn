@@ -25,9 +25,17 @@ def _score_class(score):
     return "danger"
 
 
+def _get_owned_pond_or_404(request, pond_id):
+    """管理員（is_staff）可存取所有池塘，一般用戶僅能存取自己的池塘。"""
+    if request.user.is_staff:
+        return get_object_or_404(Pond, pk=pond_id)
+    return get_object_or_404(Pond, pk=pond_id, owner=request.user)
+
+
 @login_required
 def dashboard(request):
-    ponds = Pond.objects.filter(owner=request.user)
+    is_admin_view = request.user.is_staff
+    ponds = Pond.objects.select_related("owner__profile").all() if is_admin_view else Pond.objects.filter(owner=request.user)
 
     pond_data = []
     alert_count = 0
@@ -56,13 +64,14 @@ def dashboard(request):
         "normal_count": normal_count,
         "alert_count": alert_count,
         "updated_at": timezone.now(),
+        "is_admin_view": is_admin_view,
     }
     return render(request, "water/dashboard.html", context)
 
 
 @login_required
 def pond_detail(request, pond_id):
-    pond = get_object_or_404(Pond, pk=pond_id, owner=request.user)
+    pond = _get_owned_pond_or_404(request, pond_id)
     thresholds = pond.get_thresholds()
 
     try:
@@ -171,7 +180,7 @@ def pond_detail(request, pond_id):
 
 @login_required
 def edit_thresholds(request, pond_id):
-    pond = get_object_or_404(Pond, pk=pond_id, owner=request.user)
+    pond = _get_owned_pond_or_404(request, pond_id)
     if request.method == "POST":
         form = PondThresholdForm(request.POST, instance=pond)
         if form.is_valid():
@@ -187,16 +196,17 @@ def edit_thresholds(request, pond_id):
 def alerts_list(request):
     pond_id = request.GET.get("pond")
     selected_pond = None
-    own_ponds = Pond.objects.filter(owner=request.user)
+    is_admin_view = request.user.is_staff
+    own_ponds = Pond.objects.all() if is_admin_view else Pond.objects.filter(owner=request.user)
 
     if pond_id:
         try:
-            selected_pond = get_object_or_404(Pond, pk=int(pond_id), owner=request.user)
+            selected_pond = _get_owned_pond_or_404(request, int(pond_id))
             base_qs = selected_pond.readings.select_related("pond")
         except (ValueError, TypeError):
-            base_qs = SensorReading.objects.filter(pond__owner=request.user).select_related("pond")
+            base_qs = SensorReading.objects.select_related("pond") if is_admin_view else SensorReading.objects.filter(pond__owner=request.user).select_related("pond")
     else:
-        base_qs = SensorReading.objects.filter(pond__owner=request.user).select_related("pond")
+        base_qs = SensorReading.objects.select_related("pond") if is_admin_view else SensorReading.objects.filter(pond__owner=request.user).select_related("pond")
 
     anomaly_readings = []
     for reading in base_qs.order_by("-measured_at")[:600]:
@@ -217,7 +227,7 @@ def alerts_list(request):
 
 @login_required
 def export_csv(request, pond_id):
-    pond = get_object_or_404(Pond, pk=pond_id, owner=request.user)
+    pond = _get_owned_pond_or_404(request, pond_id)
     thresholds = pond.get_thresholds()
 
     try:
