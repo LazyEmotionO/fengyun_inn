@@ -2,14 +2,26 @@ import csv
 import json
 from datetime import timedelta
 
+from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg, Count, Max, Min
 from django.utils import timezone
 
+from .forms import PondThresholdForm
 from .models import THRESHOLDS, Pond, SensorReading, threshold_range_text
 
 DAY_OPTIONS = [1, 7, 14, 30, 0]  # 0 = 全部資料
+
+
+def _score_class(score):
+    if score is None:
+        return "secondary"
+    if score >= 80:
+        return "success"
+    if score >= 60:
+        return "warning"
+    return "danger"
 
 
 def dashboard(request):
@@ -19,21 +31,28 @@ def dashboard(request):
     alert_count = 0
     normal_count = 0
     for pond in ponds:
-        latest = pond.readings.first()
-        alerts = latest.get_alerts() if latest else []
+        thresholds = pond.get_thresholds()
+        latest = pond.readings.select_related("pond").first()
+        alerts = latest.get_alerts(thresholds=thresholds) if latest else []
+        score = latest.health_score(thresholds=thresholds) if latest else None
         if latest:
             if alerts:
                 alert_count += 1
             else:
                 normal_count += 1
-        pond_data.append({"pond": pond, "latest": latest, "alerts": alerts})
+        pond_data.append({
+            "pond": pond,
+            "latest": latest,
+            "alerts": alerts,
+            "health_score": score,
+            "score_class": _score_class(score),
+        })
 
     context = {
         "pond_data": pond_data,
         "total_ponds": ponds.count(),
         "normal_count": normal_count,
         "alert_count": alert_count,
-        "thresholds": THRESHOLDS,
         "updated_at": timezone.now(),
     }
     return render(request, "water/dashboard.html", context)
@@ -41,6 +60,7 @@ def dashboard(request):
 
 def pond_detail(request, pond_id):
     pond = get_object_or_404(Pond, pk=pond_id)
+    thresholds = pond.get_thresholds()
 
     try:
         days = int(request.GET.get("days", 30))
@@ -50,17 +70,18 @@ def pond_detail(request, pond_id):
         days = 30
 
     if days == 0:
-        qs = pond.readings.order_by("measured_at")
+        qs = pond.readings.select_related("pond").order_by("measured_at")
         stats_qs = pond.readings
     else:
         since = timezone.now() - timedelta(days=days)
-        qs = pond.readings.filter(measured_at__gte=since).order_by("measured_at")
+        qs = pond.readings.select_related("pond").filter(measured_at__gte=since).order_by("measured_at")
         stats_qs = qs
 
     readings = list(qs)
 
-    latest = pond.readings.first()
-    alerts = latest.get_alerts() if latest else []
+    latest = pond.readings.select_related("pond").first()
+    alerts = latest.get_alerts(thresholds=thresholds) if latest else []
+    score = latest.health_score(thresholds=thresholds) if latest else None
 
     stats = stats_qs.aggregate(
         temperature_avg=Avg("temperature"),
@@ -78,20 +99,20 @@ def pond_detail(request, pond_id):
         count=Count("id"),
     )
 
-    anomaly_count = sum(1 for reading in readings if reading.get_alerts())
+    anomaly_count = sum(1 for r in readings if r.get_alerts(thresholds=thresholds))
 
     chart_labels = [
-        timezone.localtime(reading.measured_at).strftime("%m/%d %H:%M") for reading in readings
+        timezone.localtime(r.measured_at).strftime("%m/%d %H:%M") for r in readings
     ]
     chart_series = {
-        "temperature": [reading.temperature for reading in readings],
-        "ph": [reading.ph for reading in readings],
-        "dissolved_oxygen": [reading.dissolved_oxygen for reading in readings],
-        "salinity": [reading.salinity for reading in readings],
+        "temperature": [r.temperature for r in readings],
+        "ph": [r.ph for r in readings],
+        "dissolved_oxygen": [r.dissolved_oxygen for r in readings],
+        "salinity": [r.salinity for r in readings],
     }
 
     metric_rows = []
-    for field, rule in THRESHOLDS.items():
+    for field, rule in thresholds.items():
         avg = stats.get(f"{field}_avg")
         avg_status = "no_data"
         analysis = "所選區間尚無資料"
@@ -107,20 +128,18 @@ def pond_detail(request, pond_id):
             else:
                 avg_status = "normal"
                 analysis = f"期間平均值在安全範圍內（{threshold_range_text(rule)}），狀況穩定"
-        metric_rows.append(
-            {
-                "field": field,
-                "label": rule["label"],
-                "unit": rule["unit"],
-                "icon": rule["icon"],
-                "avg": avg,
-                "min": stats.get(f"{field}_min"),
-                "max": stats.get(f"{field}_max"),
-                "range_text": threshold_range_text(rule),
-                "avg_status": avg_status,
-                "analysis": analysis,
-            }
-        )
+        metric_rows.append({
+            "field": field,
+            "label": rule["label"],
+            "unit": rule["unit"],
+            "icon": rule["icon"],
+            "avg": avg,
+            "min": stats.get(f"{field}_min"),
+            "max": stats.get(f"{field}_max"),
+            "range_text": threshold_range_text(rule),
+            "avg_status": avg_status,
+            "analysis": analysis,
+        })
 
     reading_count = stats["count"]
     anomaly_pct = round(anomaly_count / reading_count * 100, 1) if reading_count else 0
@@ -129,13 +148,15 @@ def pond_detail(request, pond_id):
         "pond": pond,
         "latest": latest,
         "alerts": alerts,
+        "health_score": score,
+        "score_class": _score_class(score),
         "metric_rows": metric_rows,
         "reading_count": reading_count,
         "anomaly_count": anomaly_count,
         "anomaly_pct": anomaly_pct,
         "days": days,
         "day_options": DAY_OPTIONS,
-        "thresholds": THRESHOLDS,
+        "thresholds": thresholds,
         "chart_labels_json": json.dumps(chart_labels, ensure_ascii=False),
         "chart_temperature_json": json.dumps(chart_series["temperature"]),
         "chart_ph_json": json.dumps(chart_series["ph"]),
@@ -143,6 +164,19 @@ def pond_detail(request, pond_id):
         "chart_salinity_json": json.dumps(chart_series["salinity"]),
     }
     return render(request, "water/pond_detail.html", context)
+
+
+def edit_thresholds(request, pond_id):
+    pond = get_object_or_404(Pond, pk=pond_id)
+    if request.method == "POST":
+        form = PondThresholdForm(request.POST, instance=pond)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"{pond.name} 的水質安全門檻已更新。")
+            return redirect("water:pond_detail", pond_id=pond.id)
+    else:
+        form = PondThresholdForm(instance=pond)
+    return render(request, "water/edit_thresholds.html", {"pond": pond, "form": form})
 
 
 def alerts_list(request):
@@ -160,7 +194,8 @@ def alerts_list(request):
 
     anomaly_readings = []
     for reading in base_qs.order_by("-measured_at")[:600]:
-        a = reading.get_alerts()
+        thresholds = reading.pond.get_thresholds()
+        a = reading.get_alerts(thresholds=thresholds)
         if a:
             anomaly_readings.append({"reading": reading, "alerts": a})
         if len(anomaly_readings) >= 100:
@@ -176,6 +211,7 @@ def alerts_list(request):
 
 def export_csv(request, pond_id):
     pond = get_object_or_404(Pond, pk=pond_id)
+    thresholds = pond.get_thresholds()
 
     try:
         days = int(request.GET.get("days", 0))
@@ -185,26 +221,26 @@ def export_csv(request, pond_id):
         days = 0
 
     if days == 0:
-        qs = pond.readings.order_by("measured_at")
+        qs = pond.readings.select_related("pond").order_by("measured_at")
     else:
         since = timezone.now() - timedelta(days=days)
-        qs = pond.readings.filter(measured_at__gte=since).order_by("measured_at")
+        qs = pond.readings.select_related("pond").filter(measured_at__gte=since).order_by("measured_at")
 
     response = HttpResponse(content_type="text/csv; charset=utf-8-sig")
-    response["Content-Disposition"] = (
-        f'attachment; filename="{pond.name}_water_quality.csv"'
-    )
+    response["Content-Disposition"] = f'attachment; filename="{pond.name}_water_quality.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(["時間", "水溫(°C)", "pH值", "溶氧(mg/L)", "鹽度(ppt)", "狀態"])
+    writer.writerow(["時間", "水溫(°C)", "pH值", "溶氧(mg/L)", "鹽度(ppt)", "健康分數", "狀態"])
     for reading in qs:
+        status = "正常" if not reading.get_alerts(thresholds=thresholds) else "異常"
         writer.writerow([
             timezone.localtime(reading.measured_at).strftime("%Y/%m/%d %H:%M"),
             reading.temperature,
             reading.ph,
             reading.dissolved_oxygen,
             reading.salinity if reading.salinity is not None else "",
-            "正常" if reading.is_normal else "異常",
+            reading.health_score(thresholds=thresholds),
+            status,
         ])
 
     return response

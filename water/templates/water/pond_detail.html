@@ -21,25 +21,41 @@
 <section class="py-5">
     <div class="container">
 
-        <!-- Alert Banner -->
-        {% if not latest %}
-        <div class="alert alert-secondary">
-            <i class="bi bi-info-circle me-2"></i>此池塘尚無感測資料。
+        <!-- Alert Banner + 健康分數 + 設定按鈕 -->
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+            <div class="flex-grow-1">
+                {% if not latest %}
+                <div class="alert alert-secondary mb-0">
+                    <i class="bi bi-info-circle me-2"></i>此池塘尚無感測資料。
+                </div>
+                {% elif alerts %}
+                <div class="alert alert-danger mb-0">
+                    <h6 class="alert-heading mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>偵測到水質異常</h6>
+                    <ul class="mb-0">
+                        {% for alert in alerts %}
+                        <li>{{ alert.message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle-fill me-2"></i>各項水質指標皆在正常範圍，狀況良好。
+                </div>
+                {% endif %}
+            </div>
+            <div class="d-flex flex-column align-items-center gap-2">
+                {% if health_score is not None %}
+                <div class="health-score-lg health-score-{{ score_class }}">
+                    <div class="hs-lg-num">{{ health_score }}</div>
+                    <div class="hs-lg-label">健康分數</div>
+                </div>
+                {% endif %}
+                <a href="{% url 'water:edit_thresholds' pond.id %}"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-sliders me-1"></i>設定門檻
+                </a>
+            </div>
         </div>
-        {% elif alerts %}
-        <div class="alert alert-danger">
-            <h6 class="alert-heading mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>偵測到水質異常</h6>
-            <ul class="mb-0">
-                {% for alert in alerts %}
-                <li>{{ alert.message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% else %}
-        <div class="alert alert-success">
-            <i class="bi bi-check-circle-fill me-2"></i>各項水質指標皆在正常範圍，狀況良好。
-        </div>
-        {% endif %}
 
         <!-- Latest Readings -->
         {% if latest %}

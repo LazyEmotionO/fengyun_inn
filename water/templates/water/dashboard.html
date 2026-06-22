@@ -72,13 +72,21 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title mb-0">{{ item.pond.name }}</h5>
-                                {% if not item.latest %}
-                                <span class="badge bg-secondary">無資料</span>
-                                {% elif item.alerts %}
-                                <span class="badge bg-danger">異常</span>
-                                {% else %}
-                                <span class="badge bg-success">正常</span>
-                                {% endif %}
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if item.health_score is not None %}
+                                    <div class="health-score-badge health-score-{{ item.score_class }}" title="健康分數">
+                                        <div class="hs-num">{{ item.health_score }}</div>
+                                        <div class="hs-label">健康</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if not item.latest %}
+                                    <span class="badge bg-secondary">無資料</span>
+                                    {% elif item.alerts %}
+                                    <span class="badge bg-danger">異常</span>
+                                    {% else %}
+                                    <span class="badge bg-success">正常</span>
+                                    {% endif %}
+                                </div>
                             </div>
                             <p class="text-muted small mb-3">{{ item.pond.species }} · {{ item.pond.description }}</p>
 

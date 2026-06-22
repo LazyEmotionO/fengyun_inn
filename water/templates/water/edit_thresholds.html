@@ -1,0 +1,162 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}設定安全門檻 — {{ pond.name }} | 風雲客棧{% endblock %}
+
+{% block content %}
+<div class="page-header py-5">
+    <div class="container text-center text-white">
+        <h1 class="display-5 fw-bold">設定水質安全門檻</h1>
+        <p class="lead">{{ pond.name }}（{{ pond.species }}）— 調整後立即影響異常判斷與健康分數</p>
+        <nav aria-label="breadcrumb" class="justify-content-center d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'water:dashboard' %}" class="text-white">智慧養殖</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'water:pond_detail' pond.id %}" class="text-white">{{ pond.name }}</a></li>
+                <li class="breadcrumb-item active text-white-50">設定門檻</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container" style="max-width: 680px;">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- 水溫 -->
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-thermometer-half text-primary fs-5"></i>
+                    <strong>水溫 (°C)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">{{ form.temp_min.label }}</label>
+                            {{ form.temp_min }}
+                            {% if form.temp_min.help_text %}
+                            <div class="form-text">{{ form.temp_min.help_text }}</div>
+                            {% endif %}
+                            {% if form.temp_min.errors %}
+                            <div class="text-danger small">{{ form.temp_min.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">{{ form.temp_max.label }}</label>
+                            {{ form.temp_max }}
+                            {% if form.temp_max.errors %}
+                            <div class="text-danger small">{{ form.temp_max.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- pH -->
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-droplet-half text-primary fs-5"></i>
+                    <strong>pH 值</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">{{ form.ph_min.label }}</label>
+                            {{ form.ph_min }}
+                            {% if form.ph_min.help_text %}
+                            <div class="form-text">{{ form.ph_min.help_text }}</div>
+                            {% endif %}
+                            {% if form.ph_min.errors %}
+                            <div class="text-danger small">{{ form.ph_min.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">{{ form.ph_max.label }}</label>
+                            {{ form.ph_max }}
+                            {% if form.ph_max.errors %}
+                            <div class="text-danger small">{{ form.ph_max.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 溶氧 -->
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-wind text-primary fs-5"></i>
+                    <strong>溶氧 (mg/L)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">{{ form.do_min.label }}</label>
+                            {{ form.do_min }}
+                            {% if form.do_min.help_text %}
+                            <div class="form-text">{{ form.do_min.help_text }}</div>
+                            {% endif %}
+                            {% if form.do_min.errors %}
+                            <div class="text-danger small">{{ form.do_min.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6 d-flex align-items-end">
+                            <p class="text-muted small mb-3">溶氧只設下限，無上限限制。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 鹽度 -->
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-water text-primary fs-5"></i>
+                    <strong>鹽度 (ppt)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">{{ form.salinity_min.label }}</label>
+                            {{ form.salinity_min }}
+                            {% if form.salinity_min.help_text %}
+                            <div class="form-text">{{ form.salinity_min.help_text }}</div>
+                            {% endif %}
+                            {% if form.salinity_min.errors %}
+                            <div class="text-danger small">{{ form.salinity_min.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">{{ form.salinity_max.label }}</label>
+                            {{ form.salinity_max }}
+                            {% if form.salinity_max.errors %}
+                            <div class="text-danger small">{{ form.salinity_max.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 非欄位錯誤 -->
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>儲存設定
+                </button>
+                <a href="{% url 'water:pond_detail' pond.id %}" class="btn btn-outline-secondary">
+                    取消
+                </a>
+            </div>
+        </form>
+
+        <div class="alert alert-info small mt-4">
+            <i class="bi bi-info-circle me-2"></i>
+            調整門檻後，系統會以新設定重新計算所有歷史讀值的異常判斷與健康分數。
+            不同物種（{{ pond.species }}）的適合水質範圍可參考欄位下方的建議值。
+        </div>
+    </div>
+</section>
+{% endblock %}
