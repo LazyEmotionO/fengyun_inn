@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Auto-dismiss alerts after 5 seconds
-    document.querySelectorAll('.alert').forEach(alert => {
+    // Auto-dismiss flash messages after 5 seconds (skip persistent alerts)
+    document.querySelectorAll('.alert-dismissible').forEach(alert => {
         setTimeout(() => {
             const bsAlert = new bootstrap.Alert(alert);
             bsAlert.close();
