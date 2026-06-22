@@ -46,12 +46,12 @@
         /* 計分板 */
         #scoreboard {
             position: fixed; top: 52px; left: 50%; transform: translateX(-50%);
-            z-index: 200;
+            z-index: 200; max-width: 94vw;
             background: rgba(0, 0, 0, 0.65);
             border: 2px solid #F0C040;
-            border-radius: 40px;
-            padding: 6px 28px;
-            display: flex; align-items: center; gap: 20px;
+            border-radius: 28px;
+            padding: 6px 22px;
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px;
             backdrop-filter: blur(6px);
         }
         #scoreboard .score-label { color: #aaa; font-size: 0.75rem; }
@@ -60,6 +60,9 @@
             min-width: 48px; text-align: center;
         }
         #scoreboard .divider { color: rgba(255,255,255,0.3); }
+        .mini-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .mini-stat img { width: 22px; height: 22px; object-fit: contain; }
+        .mini-stat span { color: #fff; font-size: 0.8rem; font-weight: 700; }
 
         /* 計時器 */
         #timer-wrap {
@@ -102,7 +105,7 @@
             overflow: hidden;
         }
 
-        /* 魚 */
+        /* 生物 */
         .fish {
             position: absolute;
             cursor: pointer;
@@ -121,17 +124,48 @@
             0%   { opacity: 1; transform: scale(1.4); }
             100% { opacity: 0; transform: scale(0.3); }
         }
+        @keyframes hit-shake {
+            0%, 100% { transform: translateX(0); }
+            25%      { transform: translateX(-6px); }
+            50%      { transform: translateX(6px); }
+            75%      { transform: translateX(-4px); }
+        }
+        .fish.hit-shake { animation: hit-shake 0.2s ease; }
 
-        /* 加分浮字 */
+        /* 防禦血量徽章 */
+        .hp-badge {
+            position: absolute; top: -6px; right: -6px;
+            background: #fc8181; color: #fff;
+            font-size: 0.65rem; font-weight: 700;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            border: 1px solid #fff; z-index: 5;
+        }
+        .hp-badge.show { display: flex; }
+
+        /* 加分／效果浮字 */
         .score-popup {
             position: absolute;
             font-size: 1.4rem; font-weight: 700;
             pointer-events: none; z-index: 400;
             animation: float-up 0.8s ease-out forwards;
+            white-space: nowrap;
         }
         @keyframes float-up {
             0%   { opacity: 1; transform: translateY(0) scale(1.2); }
             100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+
+        /* 垃圾觸發的警示閃光 */
+        .trap-flash {
+            position: fixed; inset: 0; z-index: 450;
+            background: rgba(220,53,69,0.35);
+            pointer-events: none;
+            animation: trap-flash-fade 0.5s ease-out forwards;
+        }
+        @keyframes trap-flash-fade {
+            0%   { opacity: 1; }
+            100% { opacity: 0; }
         }
 
         /* 訪客提示 */
@@ -148,12 +182,12 @@
         /* 底部說明 */
         #hint {
             position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-            z-index: 200;
+            z-index: 200; max-width: 94vw;
             background: rgba(0,0,0,0.6);
             border: 1px solid rgba(240,192,64,0.4);
-            color: #F0C040; font-size: 0.82rem;
+            color: #F0C040; font-size: 0.78rem;
             border-radius: 24px; padding: 7px 20px;
-            text-align: center; white-space: nowrap;
+            text-align: center;
             pointer-events: none;
         }
 
@@ -163,7 +197,7 @@
             background: rgba(0,0,20,0.88);
             display: none; flex-direction: column;
             align-items: center; justify-content: center;
-            gap: 12px;
+            gap: 12px; padding: 20px; text-align: center;
         }
         #result-overlay.show { display: flex; }
         #result-overlay h2 { color: #F0C040; font-size: 2rem; }
@@ -177,6 +211,38 @@
             cursor: pointer;
         }
         #result-overlay button:hover { background: #ffd45a; }
+
+        /* 玩法說明畫面 */
+        #rules-overlay {
+            position: fixed; inset: 0; z-index: 600;
+            background: rgba(0,0,20,0.94);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 16px; padding: 24px; text-align: center;
+        }
+        #rules-overlay.show { display: flex; }
+        #rules-overlay h2 { color: #F0C040; font-size: 1.6rem; }
+        .rules-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px; max-width: 660px;
+        }
+        .rule-item {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; padding: 10px 14px;
+            text-align: left;
+        }
+        .rule-item img { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
+        .rule-item strong { color: #F0C040; display: block; }
+        .rule-item span { color: #cbd5e0; font-size: 0.76rem; line-height: 1.4; }
+        #rules-overlay button {
+            background: #F0C040; color: #1a1a2e;
+            border: none; border-radius: 24px;
+            padding: 10px 32px; font-size: 1rem; font-weight: 700;
+            cursor: pointer;
+        }
+        #rules-overlay button:hover { background: #ffd45a; }
 
         /* 泡泡裝飾 */
         .bubble {
@@ -204,6 +270,9 @@
         <small>水井村 釣魚互動體驗</small>
     </div>
     <div class="d-flex align-items-center gap-3">
+        <a href="#" id="rules-btn">
+            <i class="bi bi-question-circle-fill me-1"></i>玩法
+        </a>
         <a href="{% url 'ar_leaderboard' %}">
             <i class="bi bi-trophy-fill me-1"></i>排行榜
         </a>
@@ -229,14 +298,21 @@
         <div class="score-val" id="score-total">0</div>
     </div>
     <div class="divider">|</div>
-    <div class="text-center">
-        <div class="score-label" style="color:#63b3ed;">藍魚 ×<span id="blue-count">0</span></div>
-        <div class="score-val" style="color:#63b3ed;font-size:1rem;" id="blue-score">+0</div>
+    <div class="mini-stat">
+        <img src="{% static 'main/images/fish1.png' %}" alt="藍魚">
+        <span id="count-blue">0</span>
     </div>
-    <div class="divider">|</div>
-    <div class="text-center">
-        <div class="score-label" style="color:#fc8181;">紅魚 ×<span id="red-count">0</span></div>
-        <div class="score-val" style="color:#fc8181;font-size:1rem;" id="red-score">+0</div>
+    <div class="mini-stat">
+        <img src="{% static 'main/images/fish2.png' %}" alt="紅魚">
+        <span id="count-red">0</span>
+    </div>
+    <div class="mini-stat">
+        <img src="{% static 'main/images/crab.png' %}" alt="螃蟹">
+        <span id="count-crab">0</span>
+    </div>
+    <div class="mini-stat">
+        <img src="{% static 'main/images/shark.png' %}" alt="鯊魚">
+        <span id="count-shark">0</span>
     </div>
 </div>
 
@@ -263,8 +339,8 @@
 <div id="game-area"></div>
 
 <!-- 底部提示 -->
-<div id="hint" id="hint">
-    <i class="bi bi-hand-index me-1"></i>點擊魚兒來得分！藍魚 +1，紅魚 +3
+<div id="hint">
+    <i class="bi bi-hand-index me-1"></i>點擊生物得分，小心鯊魚與垃圾的陷阱！點「玩法」看詳細規則
 </div>
 
 <!-- 結算 -->
@@ -279,40 +355,81 @@
     <a href="{% url 'aiot' %}" style="color:#aaa;font-size:0.85rem;margin-top:4px;">返回網站</a>
 </div>
 
+<!-- 玩法說明 -->
+<div id="rules-overlay" class="show">
+    <h2><i class="bi bi-info-circle-fill me-2"></i>玩法說明</h2>
+    <div class="rules-grid">
+        <div class="rule-item">
+            <img src="{% static 'main/images/fish1.png' %}" alt="藍魚">
+            <div><strong>藍魚</strong><span>點一下，+1 分</span></div>
+        </div>
+        <div class="rule-item">
+            <img src="{% static 'main/images/fish2.png' %}" alt="紅魚">
+            <div><strong>紅魚</strong><span>點一下，+3 分</span></div>
+        </div>
+        <div class="rule-item">
+            <img src="{% static 'main/images/crab.png' %}" alt="螃蟹">
+            <div><strong>螃蟹</strong><span>有防禦力，連點 2～3 下才能捕獲，+5 分</span></div>
+        </div>
+        <div class="rule-item">
+            <img src="{% static 'main/images/shark.png' %}" alt="鯊魚">
+            <div><strong>鯊魚</strong><span>連點 3～4 下才能擊退，+8 分。3 秒內沒打退，會吃掉一隻魚或螃蟹後逃走！</span></div>
+        </div>
+        <div class="rule-item">
+            <img src="{% static 'main/images/grass.png' %}" alt="水草">
+            <div><strong>水草</strong><span>點一下，增加 5 秒時間</span></div>
+        </div>
+        <div class="rule-item">
+            <img src="{% static 'main/images/trash.png' %}" alt="垃圾">
+            <div><strong>垃圾</strong><span>千萬別點！會清空目前所有分數</span></div>
+        </div>
+    </div>
+    <button id="rules-start-btn"><i class="bi bi-play-fill me-2"></i>開始遊戲</button>
+</div>
+
 <script>
 (function () {
-    const FISH_DATA = [
-        { id: 'blue', src: '{% static "main/images/fish1.png" %}', points: 1,  w: 120, speed: 2.2, color: '#63b3ed', label: '藍魚' },
-        { id: 'red',  src: '{% static "main/images/fish2.png" %}', points: 3,  w: 100, speed: 3.2, color: '#fc8181', label: '紅魚' },
+    const SPECIES = [
+        { id: 'blue',  kind: 'catch', src: '{% static "main/images/fish1.png" %}', points: 1, w: 110, speed: 2.2, color: '#63b3ed', count: 2, hitsMin: 1, hitsMax: 1 },
+        { id: 'red',   kind: 'catch', src: '{% static "main/images/fish2.png" %}', points: 3, w: 95,  speed: 3.0, color: '#fc8181', count: 2, hitsMin: 1, hitsMax: 1 },
+        { id: 'crab',  kind: 'catch', src: '{% static "main/images/crab.png" %}',  points: 5, w: 90,  speed: 1.1, color: '#f6ad55', count: 2, hitsMin: 2, hitsMax: 3 },
+        { id: 'shark', kind: 'shark', src: '{% static "main/images/shark.png" %}', points: 8, w: 170, speed: 2.6, color: '#cbd5e0', count: 1, hitsMin: 3, hitsMax: 4, eatDelay: 3000 },
+        { id: 'grass', kind: 'bonus', src: '{% static "main/images/grass.png" %}', points: 0, w: 80,  speed: 0.7, color: '#68d391', count: 1, hitsMin: 1, hitsMax: 1, bonusSeconds: 5 },
+        { id: 'trash', kind: 'trap',  src: '{% static "main/images/trash.png" %}', points: 0, w: 80,  speed: 0.8, color: '#fc8181', count: 1, hitsMin: 1, hitsMax: 1 },
     ];
     const GAME_DURATION = 60;
+    const MAX_TIME = 90;
 
-    const gameArea = document.getElementById('game-area');
-    const elTotal  = document.getElementById('score-total');
-    const elBlueC  = document.getElementById('blue-count');
-    const elBlueS  = document.getElementById('blue-score');
-    const elRedC   = document.getElementById('red-count');
-    const elRedS   = document.getElementById('red-score');
-    const elTimer  = document.getElementById('timer');
-    const elResult = document.getElementById('result-overlay');
-    const elFinal  = document.getElementById('final-score');
-    const elDetail = document.getElementById('result-detail');
-    const elSubmit = document.getElementById('result-submit-status');
-    const elRestart= document.getElementById('restart-btn');
+    const gameArea  = document.getElementById('game-area');
+    const elTotal   = document.getElementById('score-total');
+    const elTimer   = document.getElementById('timer');
+    const elResult  = document.getElementById('result-overlay');
+    const elFinal   = document.getElementById('final-score');
+    const elDetail  = document.getElementById('result-detail');
+    const elSubmit  = document.getElementById('result-submit-status');
+    const elRestart = document.getElementById('restart-btn');
     const elCumulative = document.getElementById('cumulative-total');
+    const elRules   = document.getElementById('rules-overlay');
 
     const IS_AUTHENTICATED = {% if user.is_authenticated %}true{% else %}false{% endif %};
     const CSRF_TOKEN = document.querySelector('input[name=csrfmiddlewaretoken]').value;
 
-    let score = 0, blueCount = 0, redCount = 0, blueTotal = 0, redTotal = 0;
+    let score = 0;
+    let catchCounts = {};
     let timeLeft = GAME_DURATION;
     let timerInterval = null;
     let animFrame = null;
     let running = false;
+    let gameStarted = false;
     let fishes = [];
+    let pendingTimeouts = [];
 
     function areaW() { return gameArea.offsetWidth; }
     function areaH() { return gameArea.offsetHeight; }
+
+    function randomHits(data) {
+        return data.hitsMin + Math.floor(Math.random() * (data.hitsMax - data.hitsMin + 1));
+    }
 
     /* 建立泡泡裝飾 */
     function spawnBubbles() {
@@ -331,7 +448,7 @@
         }
     }
 
-    /* 建立魚元素 */
+    /* 建立生物元素 */
     function createFish(data) {
         const el = document.createElement('div');
         el.className = 'fish';
@@ -342,6 +459,13 @@
         img.width = data.w;
         img.draggable = false;
         el.appendChild(img);
+
+        let hpBadge = null;
+        if (data.hitsMax > 1) {
+            hpBadge = document.createElement('div');
+            hpBadge.className = 'hp-badge';
+            el.appendChild(hpBadge);
+        }
 
         // 初始位置（避開頂部 UI 80px）
         const margin = 60;
@@ -354,58 +478,137 @@
         const angle = Math.random() * Math.PI * 2;
         const spd = data.speed * (0.8 + Math.random() * 0.4);
         const fish = {
-            el, data,
+            el, data, hpBadge,
             x, y,
             vx: Math.cos(angle) * spd,
             vy: Math.sin(angle) * spd * 0.45,   // 垂直振幅較小
             wobble: 0,
             wobbleSpeed: 0.04 + Math.random() * 0.03,
             wobbleAmp: 18 + Math.random() * 20,
+            hitsRequired: randomHits(data),
+            hitsTaken: 0,
+            alive: true,
+            eatTimeoutId: null,
         };
 
         el.addEventListener('click', () => onFishClick(fish));
         gameArea.appendChild(el);
+
+        if (data.kind === 'shark') scheduleEatTimer(fish);
+
         return fish;
     }
 
-    function onFishClick(fish) {
-        if (!running) return;
-        const pts = fish.data.points;
+    function shakeFish(fish) {
+        fish.el.classList.add('hit-shake');
+        setTimeout(() => fish.el.classList.remove('hit-shake'), 220);
+    }
 
-        // 更新分數
-        score += pts;
-        if (fish.data.id === 'blue') { blueCount++; blueTotal += pts; }
-        else                         { redCount++;  redTotal  += pts; }
-        updateScoreboard();
-
-        // 加分浮字
+    function showFloatText(fish, text, color) {
         const popup = document.createElement('div');
         popup.className = 'score-popup';
-        popup.style.cssText = `left:${fish.x + fish.data.w/2 - 20}px; top:${fish.y}px; color:${fish.data.color};`;
-        popup.textContent = '+' + pts;
+        popup.style.cssText = `left:${fish.x + fish.data.w/2 - 20}px; top:${fish.y}px; color:${color};`;
+        popup.textContent = text;
         gameArea.appendChild(popup);
         popup.addEventListener('animationend', () => popup.remove());
+    }
 
-        // 捕捉動畫後重生
+    function flashTrap() {
+        const flash = document.createElement('div');
+        flash.className = 'trap-flash';
+        document.body.appendChild(flash);
+        flash.addEventListener('animationend', () => flash.remove());
+    }
+
+    function resetAllScore() {
+        score = 0;
+        catchCounts = {};
+    }
+
+    /* 鯊魚：超時未擊退就吃掉一隻魚／螃蟹後逃走 */
+    function scheduleEatTimer(fish) {
+        const id = setTimeout(() => {
+            if (!running || !fish.alive) return;
+            sharkEat(fish);
+        }, fish.data.eatDelay);
+        fish.eatTimeoutId = id;
+        pendingTimeouts.push(id);
+    }
+
+    function sharkEat(fish) {
+        const targets = fishes.filter(f => f !== fish && f.alive && f.data.kind === 'catch');
+        if (targets.length) {
+            const victim = targets[Math.floor(Math.random() * targets.length)];
+            victim.alive = false;
+            if (victim.eatTimeoutId) clearTimeout(victim.eatTimeoutId);
+            showFloatText(victim, '被吃掉了!', '#fc8181');
+            victim.el.classList.add('caught');
+            victim.el.addEventListener('animationend', () => respawnFish(victim), { once: true });
+        }
+        fish.alive = false;
+        showFloatText(fish, '逃走了!', '#cbd5e0');
         fish.el.classList.add('caught');
-        fish.el.addEventListener('animationend', () => {
-            fish.el.classList.remove('caught');
-            // 重生於新位置
-            fish.x = 60 + Math.random() * (areaW() - fish.data.w - 120);
-            fish.y = 80 + Math.random() * (areaH() - 160);
-            const angle = Math.random() * Math.PI * 2;
-            const spd = fish.data.speed * (0.8 + Math.random() * 0.4);
-            fish.vx = Math.cos(angle) * spd;
-            fish.vy = Math.sin(angle) * spd * 0.45;
-        }, { once: true });
+        fish.el.addEventListener('animationend', () => respawnFish(fish), { once: true });
+    }
+
+    function onFishClick(fish) {
+        if (!running || !fish.alive) return;
+        fish.hitsTaken++;
+
+        if (fish.hitsTaken < fish.hitsRequired) {
+            if (fish.hpBadge) {
+                fish.hpBadge.textContent = fish.hitsRequired - fish.hitsTaken;
+                fish.hpBadge.classList.add('show');
+            }
+            shakeFish(fish);
+            return;
+        }
+
+        fish.alive = false;
+        if (fish.eatTimeoutId) clearTimeout(fish.eatTimeoutId);
+
+        if (fish.data.kind === 'bonus') {
+            timeLeft = Math.min(timeLeft + fish.data.bonusSeconds, MAX_TIME);
+            elTimer.textContent = timeLeft;
+            showFloatText(fish, `+${fish.data.bonusSeconds}秒`, fish.data.color);
+        } else if (fish.data.kind === 'trap') {
+            resetAllScore();
+            showFloatText(fish, '分數歸零!', '#fc8181');
+            flashTrap();
+        } else {
+            score += fish.data.points;
+            catchCounts[fish.data.id] = (catchCounts[fish.data.id] || 0) + 1;
+            showFloatText(fish, '+' + fish.data.points, fish.data.color);
+        }
+        updateScoreboard();
+
+        fish.el.classList.add('caught');
+        fish.el.addEventListener('animationend', () => respawnFish(fish), { once: true });
+    }
+
+    function respawnFish(fish) {
+        fish.el.classList.remove('caught');
+        if (fish.hpBadge) fish.hpBadge.classList.remove('show');
+        fish.hitsRequired = randomHits(fish.data);
+        fish.hitsTaken = 0;
+        fish.alive = true;
+
+        fish.x = 60 + Math.random() * (areaW() - fish.data.w - 120);
+        fish.y = 80 + Math.random() * (areaH() - 160);
+        const angle = Math.random() * Math.PI * 2;
+        const spd = fish.data.speed * (0.8 + Math.random() * 0.4);
+        fish.vx = Math.cos(angle) * spd;
+        fish.vy = Math.sin(angle) * spd * 0.45;
+
+        if (fish.data.kind === 'shark') scheduleEatTimer(fish);
     }
 
     function updateScoreboard() {
         elTotal.textContent = score;
-        elBlueC.textContent = blueCount;
-        elRedC.textContent  = redCount;
-        elBlueS.textContent = '+' + blueTotal;
-        elRedS.textContent  = '+' + redTotal;
+        ['blue', 'red', 'crab', 'shark'].forEach(id => {
+            const el = document.getElementById('count-' + id);
+            if (el) el.textContent = catchCounts[id] || 0;
+        });
     }
 
     /* 動畫更新 */
@@ -455,9 +658,13 @@
         running = false;
         clearInterval(timerInterval);
         cancelAnimationFrame(animFrame);
+        pendingTimeouts.forEach(id => clearTimeout(id));
+        pendingTimeouts = [];
 
         elFinal.textContent = score;
-        elDetail.textContent = `藍魚 ${blueCount} 隻（+${blueTotal}）　紅魚 ${redCount} 隻（+${redTotal}）`;
+        elDetail.textContent =
+            `藍魚 ${catchCounts.blue || 0}　紅魚 ${catchCounts.red || 0}　` +
+            `螃蟹 ${catchCounts.crab || 0}　鯊魚 ${catchCounts.shark || 0}`;
         elResult.classList.add('show');
         elRestart.style.display = 'block';
 
@@ -485,14 +692,18 @@
     }
 
     window.startGame = function () {
-        // 清除舊魚
+        pendingTimeouts.forEach(id => clearTimeout(id));
+        pendingTimeouts = [];
+
+        // 清除舊生物
         fishes.forEach(f => f.el.remove());
         fishes = [];
         gameArea.querySelectorAll('.score-popup').forEach(e => e.remove());
         gameArea.querySelectorAll('.bubble').forEach(e => e.remove());
 
         // 重置狀態
-        score = blueCount = redCount = blueTotal = redTotal = 0;
+        score = 0;
+        catchCounts = {};
         timeLeft = GAME_DURATION;
         elTimer.style.color = '#fff';
         elSubmit.textContent = '';
@@ -504,10 +715,10 @@
         elTimer.textContent = GAME_DURATION;
 
         spawnBubbles();
-        // 各產生 2 隻
-        FISH_DATA.forEach(data => {
-            fishes.push(createFish(data));
-            fishes.push(createFish(data));
+        SPECIES.forEach(data => {
+            for (let i = 0; i < data.count; i++) {
+                fishes.push(createFish(data));
+            }
         });
 
         running = true;
@@ -515,8 +726,19 @@
         startTimer();
     };
 
-    // 頁面載入後自動開始
-    window.startGame();
+    function closeRules() {
+        elRules.classList.remove('show');
+        if (!gameStarted) {
+            gameStarted = true;
+            window.startGame();
+        }
+    }
+
+    document.getElementById('rules-start-btn').addEventListener('click', closeRules);
+    document.getElementById('rules-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        elRules.classList.add('show');
+    });
 })();
 </script>
 </body>
